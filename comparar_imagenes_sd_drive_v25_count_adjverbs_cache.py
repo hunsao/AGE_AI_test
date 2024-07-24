@@ -87,10 +87,8 @@ def get_unique_list_items(df, column):
 
 def get_drive_service():
     try:
-        # Obtener la cadena codificada de la variable de entorno
-        encoded_sa = os.getenv('GOOGLE_SERVICE_ACCOUNT')
-        if not encoded_sa:
-            raise ValueError("La variable de entorno GOOGLE_SERVICE_ACCOUNT no está configurada")
+        # Obtener el secreto de Streamlit
+        encoded_sa = st.secrets["GOOGLE_SERVICE_ACCOUNT"]
 
         # Decodificar la cadena
         sa_json = base64.b64decode(encoded_sa).decode('utf-8')
