@@ -368,14 +368,14 @@ if not st.session_state.data_loaded:
 
     # Botón de confirmación antes de listar los archivos
     if st.button("Cargar archivos de la carpeta"):
-        files = list_files_in_folder(service, folder_id)
-        #st.write(f"Número de archivos encontrados: {len(files)}")
+        st.session_state.files = list_files_in_folder(service, folder_id)
+        #st.write(f"Número de archivos encontrados: {len(st.session_state.files)}")
 
-        if not files:
+        if not st.session_state.files:
             st.error("No se encontraron archivos en la carpeta de Google Drive.")
             st.stop()
         else:
-            st.success(f"Se encontraron {len(files)} archivos en la carpeta de Google Drive.")
+            st.success(f"Se encontraron {len(st.session_state.files)} archivos en la carpeta de Google Drive.")
             st.session_state.data_loaded = True
 
     file_options = {item['name']: item['id'] for item in files if item['name'].endswith('.zip')}
