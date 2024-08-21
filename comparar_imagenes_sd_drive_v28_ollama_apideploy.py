@@ -434,7 +434,7 @@ if not st.session_state.data_loaded:
                     
                     st.session_state.data_loaded = True
                     st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("No se pudo cargar el DataFrame.")
         
