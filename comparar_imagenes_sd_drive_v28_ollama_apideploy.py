@@ -32,8 +32,7 @@ if 'data_loaded' not in st.session_state:
     st.session_state.images1 = None
     st.session_state.images2 = None
     st.session_state.group_filter = "Todos"  # Valor por defecto para el filtro de grupo
-    st.session_state.search_term = ""  #Valor por defecto para el término de búsqueda
-    st.session_state.files = []
+    st.session_state.search_term = ""  # Valor por defecto para el término de búsqueda
 
 @cache_data(ttl=3600)
 def count_observations(df, category, options):
@@ -93,7 +92,26 @@ def create_downloadable_zip(filtered_df, images1, images2):
         zip_buffer.seek(0)
     return zip_buffer
 
-# Google Drive API#
+# def get_drive_service():
+#     try:
+#         SERVICE_ACCOUNT_FILE = 'TEST/STREAMLIT/tranquil-hawk-429712-r9-ca222fe2b5cb.json'
+#         credentials = service_account.Credentials.from_service_account_file(
+#             SERVICE_ACCOUNT_FILE,
+#             scopes=['https://www.googleapis.com/auth/drive.readonly']
+#         )
+
+#         def custom_request(*args, **kwargs):
+#             request = HttpRequest(*args, **kwargs)
+#             request.timeout = 120  # Aumentar el tiempo de espera a 120 segundos
+#             return request
+
+#         service = build('drive', 'v3', credentials=credentials, requestBuilder=custom_request)
+#         return service
+    
+#     except Exception as e:
+#         st.error(f"Error al obtener el servicio de Google Drive: {str(e)}")
+#         return None
+
 def get_drive_service():
     try:
         # Obtener la cadena codificada de la variable de entorno
@@ -131,14 +149,14 @@ def list_files_in_folder(service, folder_id, retries=3):
         except HttpError as error:
             st.error(f"Error al listar archivos (intento {attempt+1}): {error}")
             if attempt < retries - 1:
-                time.sleep(5)  
+                time.sleep(5)  # Espera antes de reintentar
             else:
                 raise
             
 class RequestWithTimeout(Request):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.timeout = 120  
+        self.timeout = 120  # Ajusta el tiempo de espera aquí (en segundos)
 
 # Función para descargar archivo desde Google Drive
 def download_file_from_google_drive(service, file_id, dest_path, retries=3):
@@ -193,7 +211,8 @@ def read_images_from_folder(folder_path):
     images = {}
     filenames = sorted(os.listdir(folder_path), key=natural_sort_key)
     for filename in filenames:
-        if filename.endswith(".jpg"):
+        #if filename.endswith(".jpg"):
+        if filename.lower().endswith((".jpg", ".jpeg")):
             image_path = os.path.join(folder_path, filename)
             images[filename] = image_path
     return images
@@ -358,7 +377,7 @@ if not st.session_state.data_loaded:
 
     folder_url = st.text_input(
         "Ingrese el enlace de la carpeta de Google Drive:",
-        value="URL de la carpeta de Google Drive"
+        value="https://drive.google.com/drive/u/0/folders/1j9r4MWwdP8utL6pF5vHYnCYKWlZwwboi"
     )
 
     folder_id = extract_folder_id(folder_url)
@@ -367,19 +386,14 @@ if not st.session_state.data_loaded:
         st.warning("Por favor, ingrese un enlace de carpeta de Google Drive válido.")
         st.stop()
 
-    # Botón de confirmación antes de listar los archivos
-    if st.button("Cargar archivos de la carpeta"):
-        st.session_state.files = list_files_in_folder(service, folder_id)
-        #st.write(f"Número de archivos encontrados: {len(st.session_state.files)}")
+    files = list_files_in_folder(service, folder_id)
+    #st.write(f"Número de archivos encontrados: {len(files)}")
 
-        if not st.session_state.files:
-            st.error("No se encontraron archivos en la carpeta de Google Drive.")
-            st.stop()
-        else:
-            st.success(f"Se encontraron {len(st.session_state.files)} archivos en la carpeta de Google Drive.")
-            st.session_state.data_loaded = True
+    if not files:
+        st.error("No se encontraron archivos en la carpeta de Google Drive.")
+        st.stop()
 
-    file_options = {item['name']: item['id'] for item in st.session_state.files if item['name'].endswith('.zip')}
+    file_options = {item['name']: item['id'] for item in files if item['name'].endswith('.zip')}
     selected_file_name = st.selectbox("Selecciona el archivo ZIP:", list(file_options.keys()))
 
     if selected_file_name and st.button("Confirmar selección"):
@@ -389,43 +403,40 @@ if not st.session_state.data_loaded:
         download_file_from_google_drive(service, file_id, temp_zip_path)
         temp_extract_path = "extracted_folders"
         extract_zip(temp_zip_path, temp_extract_path)
+        
+        # Cargar datos en la sesión
+        if os.path.exists(temp_extract_path):
 
-        if st.session_state.df_results is not None:
-            st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
+            st.write("Contenido de la carpeta extraída:", os.listdir(temp_extract_path))
 
-            # Cargar datos en la sesión
-            if os.path.exists(temp_extract_path):
-    
-                st.write("Contenido de la carpeta extraída:", os.listdir(temp_extract_path))
-    
-                data_folder = os.path.join(temp_extract_path, 'data')
-                folder1 = os.path.join(data_folder, 'NEUTRAL')
-                folder2 = os.path.join(data_folder, 'OLDER')
+            data_folder = os.path.join(temp_extract_path, 'data')
+            folder1 = os.path.join(data_folder, 'NEUTRAL')
+            folder2 = os.path.join(data_folder, 'OLDER')
+            
+            if os.path.exists(folder1) and os.path.exists(folder2):
+                st.session_state.images1 = read_images_from_folder(folder1)
+                st.session_state.images2 = read_images_from_folder(folder2)
+                st.session_state.df_results = read_dataframe_from_zip(temp_zip_path)
                 
-                if os.path.exists(folder1) and os.path.exists(folder2):
-                    st.session_state.images1 = read_images_from_folder(folder1)
-                    st.session_state.images2 = read_images_from_folder(folder2)
-                    st.session_state.df_results = read_dataframe_from_zip(temp_zip_path)
+                # Buscar y cargar cualquier archivo CSV que comience con "df_"
+                csv_files = [f for f in os.listdir(data_folder) if f.startswith('df_') and f.endswith('.csv')]
+                if csv_files:
+                    csv_file_path = os.path.join(data_folder, csv_files[0])
+                    st.session_state.df_results = pd.read_csv(csv_file_path)
+                
+                if st.session_state.df_results is not None:
+                    st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
                     
-                    # Buscar y cargar cualquier archivo CSV que comience con "df_"
-                    csv_files = [f for f in os.listdir(data_folder) if f.startswith('df_') and f.endswith('.csv')]
-                    if csv_files:
-                        csv_file_path = os.path.join(data_folder, csv_files[0])
-                        st.session_state.df_results = pd.read_csv(csv_file_path)
+                    new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
+                                      "objects", "objects_assist_devices", "objects_digi_devices"] 
+                    for category in new_categories:
+                        st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
                     
-                    if st.session_state.df_results is not None:
-                        st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
-                        
-                        new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
-                                          "objects", "objects_assist_devices", "objects_digi_devices"] 
-                        for category in new_categories:
-                            st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
-                        
-                        st.session_state.data_loaded = True
-                        st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
-                        st.experimental_rerun()
-                    else:
-                        st.error("No se pudo cargar el DataFrame.")
+                    st.session_state.data_loaded = True
+                    st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
+                    st.experimental_rerun()
+                else:
+                    st.error("No se pudo cargar el DataFrame.")
         
         # Limpiar archivos temporales
         if os.path.exists(temp_zip_path):
