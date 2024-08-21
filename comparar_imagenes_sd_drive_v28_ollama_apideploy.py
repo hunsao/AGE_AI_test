@@ -378,7 +378,7 @@ if not st.session_state.data_loaded:
             st.success(f"Se encontraron {len(st.session_state.files)} archivos en la carpeta de Google Drive.")
             st.session_state.data_loaded = True
 
-    file_options = {item['name']: item['id'] for item in files if item['name'].endswith('.zip')}
+    file_options = {item['name']: item['id'] for item in st.session_state.files if item['name'].endswith('.zip')}
     selected_file_name = st.selectbox("Selecciona el archivo ZIP:", list(file_options.keys()))
 
     if selected_file_name and st.button("Confirmar selección"):
@@ -388,6 +388,12 @@ if not st.session_state.data_loaded:
         download_file_from_google_drive(service, file_id, temp_zip_path)
         temp_extract_path = "extracted_folders"
         extract_zip(temp_zip_path, temp_extract_path)
+
+        if st.session_state.df_results is not None:
+            st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
+            # ... (rest of your data loading logic)
+        else:
+            st.error("No se pudo cargar el DataFrame. Revisa el archivo ZIP.") # More informative error message
         
         # Cargar datos en la sesión
         if os.path.exists(temp_extract_path):
