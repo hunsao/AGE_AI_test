@@ -33,6 +33,7 @@ if 'data_loaded' not in st.session_state:
     st.session_state.images2 = None
     st.session_state.group_filter = "Todos"  # Valor por defecto para el filtro de grupo
     st.session_state.search_term = ""  #Valor por defecto para el término de búsqueda
+    st.session_state.files = []
 
 @cache_data(ttl=3600)
 def count_observations(df, category, options):
@@ -391,43 +392,40 @@ if not st.session_state.data_loaded:
 
         if st.session_state.df_results is not None:
             st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
-            # ... (rest of your data loading logic)
-        else:
-            st.error("No se pudo cargar el DataFrame. Revisa el archivo ZIP.") # More informative error message
-        
-        # Cargar datos en la sesión
-        if os.path.exists(temp_extract_path):
 
-            st.write("Contenido de la carpeta extraída:", os.listdir(temp_extract_path))
-
-            data_folder = os.path.join(temp_extract_path, 'data')
-            folder1 = os.path.join(data_folder, 'NEUTRAL')
-            folder2 = os.path.join(data_folder, 'OLDER')
-            
-            if os.path.exists(folder1) and os.path.exists(folder2):
-                st.session_state.images1 = read_images_from_folder(folder1)
-                st.session_state.images2 = read_images_from_folder(folder2)
-                st.session_state.df_results = read_dataframe_from_zip(temp_zip_path)
+            # Cargar datos en la sesión
+            if os.path.exists(temp_extract_path):
+    
+                st.write("Contenido de la carpeta extraída:", os.listdir(temp_extract_path))
+    
+                data_folder = os.path.join(temp_extract_path, 'data')
+                folder1 = os.path.join(data_folder, 'NEUTRAL')
+                folder2 = os.path.join(data_folder, 'OLDER')
                 
-                # Buscar y cargar cualquier archivo CSV que comience con "df_"
-                csv_files = [f for f in os.listdir(data_folder) if f.startswith('df_') and f.endswith('.csv')]
-                if csv_files:
-                    csv_file_path = os.path.join(data_folder, csv_files[0])
-                    st.session_state.df_results = pd.read_csv(csv_file_path)
-                
-                if st.session_state.df_results is not None:
-                    st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
+                if os.path.exists(folder1) and os.path.exists(folder2):
+                    st.session_state.images1 = read_images_from_folder(folder1)
+                    st.session_state.images2 = read_images_from_folder(folder2)
+                    st.session_state.df_results = read_dataframe_from_zip(temp_zip_path)
                     
-                    new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
-                                      "objects", "objects_assist_devices", "objects_digi_devices"] 
-                    for category in new_categories:
-                        st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
+                    # Buscar y cargar cualquier archivo CSV que comience con "df_"
+                    csv_files = [f for f in os.listdir(data_folder) if f.startswith('df_') and f.endswith('.csv')]
+                    if csv_files:
+                        csv_file_path = os.path.join(data_folder, csv_files[0])
+                        st.session_state.df_results = pd.read_csv(csv_file_path)
                     
-                    st.session_state.data_loaded = True
-                    st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
-                    st.experimental_rerun()
-                else:
-                    st.error("No se pudo cargar el DataFrame.")
+                    if st.session_state.df_results is not None:
+                        st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
+                        
+                        new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
+                                          "objects", "objects_assist_devices", "objects_digi_devices"] 
+                        for category in new_categories:
+                            st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
+                        
+                        st.session_state.data_loaded = True
+                        st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
+                        st.experimental_rerun()
+                    else:
+                        st.error("No se pudo cargar el DataFrame.")
         
         # Limpiar archivos temporales
         if os.path.exists(temp_zip_path):
