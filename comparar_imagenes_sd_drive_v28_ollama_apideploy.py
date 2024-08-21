@@ -1,4 +1,3 @@
-#streamlit run c:/Users/David/Documents/AGEAI/Scripts/TEST/STREAMLIT/comparar_imagenes_sd_drive_v28_ollama.py
 import streamlit as st
 from zipfile import ZipFile
 import os
@@ -31,8 +30,8 @@ if 'data_loaded' not in st.session_state:
     st.session_state.df_results = None
     st.session_state.images1 = None
     st.session_state.images2 = None
-    st.session_state.group_filter = "Todos"  # Valor por defecto para el filtro de grupo
-    st.session_state.search_term = ""  # Valor por defecto para el término de búsqueda
+    st.session_state.group_filter = "Todos" 
+    st.session_state.search_term = ""  
 
 @cache_data(ttl=3600)
 def count_observations(df, category, options):
@@ -92,26 +91,6 @@ def create_downloadable_zip(filtered_df, images1, images2):
         zip_buffer.seek(0)
     return zip_buffer
 
-# def get_drive_service():
-#     try:
-#         SERVICE_ACCOUNT_FILE = 'TEST/STREAMLIT/tranquil-hawk-429712-r9-ca222fe2b5cb.json'
-#         credentials = service_account.Credentials.from_service_account_file(
-#             SERVICE_ACCOUNT_FILE,
-#             scopes=['https://www.googleapis.com/auth/drive.readonly']
-#         )
-
-#         def custom_request(*args, **kwargs):
-#             request = HttpRequest(*args, **kwargs)
-#             request.timeout = 120  # Aumentar el tiempo de espera a 120 segundos
-#             return request
-
-#         service = build('drive', 'v3', credentials=credentials, requestBuilder=custom_request)
-#         return service
-    
-#     except Exception as e:
-#         st.error(f"Error al obtener el servicio de Google Drive: {str(e)}")
-#         return None
-
 def get_drive_service():
     try:
         # Obtener la cadena codificada de la variable de entorno
@@ -156,7 +135,7 @@ def list_files_in_folder(service, folder_id, retries=3):
 class RequestWithTimeout(Request):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.timeout = 120  # Ajusta el tiempo de espera aquí (en segundos)
+        self.timeout = 120  
 
 # Función para descargar archivo desde Google Drive
 def download_file_from_google_drive(service, file_id, dest_path, retries=3):
@@ -247,7 +226,6 @@ def get_unique_list_items(df_results, category):
     if category in df_results.columns:
         all_items = df_results[category].dropna().tolist()
         
-        # Convertir diccionarios a tuplas de valores para hacerlos hashables
         unique_items = set()
         for item in all_items:
             if isinstance(item, dict):
