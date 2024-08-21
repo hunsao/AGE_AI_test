@@ -93,39 +93,31 @@ def create_downloadable_zip(filtered_df, images1, images2):
     return zip_buffer
 
 # Google Drive API#
-# Function to get Google Drive service
 def get_drive_service():
     try:
-        SERVICE_ACCOUNT_FILE = 'TEST/STREAMLIT/tranquil-hawk-429712-r9-ca222fe2b5cb.json'
-        credentials = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE,
+        # Obtener la cadena codificada de la variable de entorno
+        encoded_sa = os.getenv('GOOGLE_SERVICE_ACCOUNT')
+        if not encoded_sa:
+            raise ValueError("La variable de entorno GOOGLE_SERVICE_ACCOUNT no está configurada")
+
+        # Decodificar la cadena
+        sa_json = base64.b64decode(encoded_sa).decode('utf-8')
+
+        # Crear un diccionario a partir de la cadena JSON
+        sa_dict = json.loads(sa_json)
+
+        # Crear las credenciales
+        credentials = service_account.Credentials.from_service_account_info(
+            sa_dict,
             scopes=['https://www.googleapis.com/auth/drive.readonly']
         )
+
+        # Construir el servicio
         service = build('drive', 'v3', credentials=credentials)
         return service
-    
     except Exception as e:
         st.error(f"Error al obtener el servicio de Google Drive: {str(e)}")
         return None
-
-# def get_drive_service():
-#     try:
-#         SERVICE_ACCOUNT_FILE = 'TEST/STREAMLIT/tranquil-hawk-429712-r9-ca222fe2b5cb.json'
-#         credentials = service_account.Credentials.from_service_account_file(
-#             SERVICE_ACCOUNT_FILE,
-#             scopes=['https://www.googleapis.com/auth/drive.readonly']
-#         )
-
-#         def custom_request(*args, **kwargs):
-#             request = HttpRequest(*args, **kwargs)
-#             request.timeout = 120  # Aumentar el tiempo de espera a 120 segundos
-#             return request
-
-#         service = build('drive', 'v3', credentials=credentials, requestBuilder=custom_request)
-#         return service
-#     except Exception as e:
-#         st.error(f"Error al obtener el servicio de Google Drive: {str(e)}")
-#         return None
 
 def list_files_in_folder(service, folder_id, retries=3):
     for attempt in range(retries):
