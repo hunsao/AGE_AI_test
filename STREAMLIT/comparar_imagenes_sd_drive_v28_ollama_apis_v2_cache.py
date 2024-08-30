@@ -142,7 +142,7 @@ def get_drive_service():
         return None
 
 #@st.cache_data()
-@st.cache_data(ttl=3600)  # Cache for 1 hour
+#@st.cache_data(ttl=3600)  # Cache for 1 hour
 def list_files_in_folder(service, folder_id, retries=3):
     for attempt in range(retries):
         try:
