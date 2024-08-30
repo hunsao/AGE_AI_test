@@ -269,12 +269,19 @@ def get_unique_list_items(df_results, category):
     return []
 
 @st.cache_data()
-def get_unique_objects(df_results, column_name):
+def get_unique_objects(df, column_name):
     unique_objects = set()
-    for _, row in df_results.iterrows():
-        objects_list = row[column_name]
+    for objects_list in df[column_name].dropna():
         if isinstance(objects_list, list):
             unique_objects.update(objects_list)
+        elif isinstance(objects_list, str):
+            # Asumiendo que la cadena es una representación de lista
+            try:
+                objects = eval(objects_list)
+                if isinstance(objects, list):
+                    unique_objects.update(objects)
+            except:
+                pass  # Ignorar si no se puede evaluar como lista
     return sorted(list(unique_objects))
 
 #############################################################################################################################
@@ -525,45 +532,49 @@ else:
                 filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
             else:
                 filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
-
+    if st.session_state.reset_filters:
+    st.session_state.reset_filters = False
+    
         # Filtro de Objetos
     unique_objects = get_unique_objects(df_results, "objects")
+    unique_assist_devices = get_unique_objects(df_results, "objects_assist_devices")
+    unique_digi_devices = get_unique_objects(df_results, "objects_digi_devices")
+    
+    # Crear selectores para cada categoría de objetos
     selected_objects = st.sidebar.multiselect(
         "Seleccionar Objetos",
         unique_objects,
-        default=get_default("objects"),
-        key="multiselect_objects_list"
+        key="multiselect_objects"
     )
-
-    # Filtro de Objetos Assist Devices
-    unique_assist_devices = get_unique_objects(df_results, "objects_assist_devices")
+    
     selected_assist_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Assist Devices",
         unique_assist_devices,
-        default=get_default("objects_assist_devices"),
-        key="multiselect_objects_assist_devices_list"
+        key="multiselect_assist_devices"
     )
-
-    # Filtro de Objetos Digi Devices
-    unique_digi_devices = get_unique_objects(df_results, "objects_digi_devices")
+    
     selected_digi_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Digi Devices",
         unique_digi_devices,
-        default=get_default("objects_digi_devices"),
-        key="multiselect_objects_digi_devices_list"
+        key="multiselect_digi_devices"
     )
-
+    
     # Aplicar filtros de objetos
     if selected_objects:
-        filtered_df = filtered_df[filtered_df['objects'].apply(lambda x: any(item in x for item in selected_objects))]
+        filtered_df = filtered_df[filtered_df['objects'].apply(
+            lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_objects)
+        )]
+    
     if selected_assist_devices:
-        filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(lambda x: any(item in x for item in selected_assist_devices))]
+        filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(
+            lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_assist_devices)
+        )]
+    
     if selected_digi_devices:
-        filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(lambda x: any(item in x for item in selected_digi_devices))]
-
-    if st.session_state.reset_filters:
-        st.session_state.reset_filters = False
-
+        filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(
+            lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_digi_devices)
+        )]
+######################################################
     st.sidebar.header("Buscador de Variables")
     search_columns = df_results.columns.tolist()
     selected_column = st.sidebar.selectbox("Seleccionar Variable para Buscar", search_columns)
