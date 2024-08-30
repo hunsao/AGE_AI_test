@@ -532,8 +532,9 @@ else:
                 filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
             else:
                 filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
-    if st.session_state.reset_filters:
-    st.session_state.reset_filters = False
+    
+    #if st.session_state.reset_filters:
+    #st.session_state.reset_filters = False
     
         # Filtro de Objetos
     unique_objects = get_unique_objects(df_results, "objects")
