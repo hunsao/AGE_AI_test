@@ -517,6 +517,41 @@ else:
             else:
                 filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
 
+        # Filtro de Objetos
+    unique_objects = get_unique_objects(df_results, "objects")
+    selected_objects = st.sidebar.multiselect(
+        "Seleccionar Objetos",
+        unique_objects,
+        default=get_default("objects"),
+        key="multiselect_objects"
+    )
+
+    # Filtro de Objetos Assist Devices
+    unique_assist_devices = get_unique_objects(df_results, "objects_assist_devices")
+    selected_assist_devices = st.sidebar.multiselect(
+        "Seleccionar Objetos Assist Devices",
+        unique_assist_devices,
+        default=get_default("objects_assist_devices"),
+        key="multiselect_objects_assist_devices"
+    )
+
+    # Filtro de Objetos Digi Devices
+    unique_digi_devices = get_unique_objects(df_results, "objects_digi_devices")
+    selected_digi_devices = st.sidebar.multiselect(
+        "Seleccionar Objetos Digi Devices",
+        unique_digi_devices,
+        default=get_default("objects_digi_devices"),
+        key="multiselect_objects_digi_devices"
+    )
+
+    # Aplicar filtros de objetos
+    if selected_objects:
+        filtered_df = filtered_df[filtered_df['objects'].apply(lambda x: any(item in x for item in selected_objects))]
+    if selected_assist_devices:
+        filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(lambda x: any(item in x for item in selected_assist_devices))]
+    if selected_digi_devices:
+        filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(lambda x: any(item in x for item in selected_digi_devices))]
+
     if st.session_state.reset_filters:
         st.session_state.reset_filters = False
 
