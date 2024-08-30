@@ -540,19 +540,19 @@ else:
     
     # Crear selectores para cada categoría de objetos
     selected_objects = st.sidebar.multiselect(
-        "Seleccionar Objetos",
+        "Seleccionar Objetos (SIN LISTA)",
         unique_objects,
         key="multiselect_objects_list"
     )
     
     selected_assist_devices = st.sidebar.multiselect(
-        "Seleccionar Objetos Assist Devices",
+        "Seleccionar Objetos Assist Devices (SIN LISTA)",
         unique_assist_devices,
         key="multiselect_assist_devices_list"
     )
     
     selected_digi_devices = st.sidebar.multiselect(
-        "Seleccionar Objetos Digi Devices",
+        "Seleccionar Objetos Digi Devices (SIN LISTA)",
         unique_digi_devices,
         key="multiselect_digi_devices_list"
     )
