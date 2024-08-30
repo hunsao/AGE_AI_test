@@ -586,20 +586,26 @@ else:
     )
     
     # Aplicar filtros de objetos
+    # if selected_objects:
+    #     filtered_df = filtered_df[filtered_df['objects'].apply(
+    #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_objects)
+    #     )]
+    
+    # if selected_assist_devices:
+    #     filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(
+    #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_assist_devices)
+    #     )]
+    
+    # if selected_digi_devices:
+    #     filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(
+    #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_digi_devices)
+    #     )]
     if selected_objects:
-        filtered_df = filtered_df[filtered_df['objects'].apply(
-            lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_objects)
-        )]
-    
+    filtered_df = filtered_df[filtered_df['objects'].apply(lambda x: any(item in x for item in selected_objects))]
     if selected_assist_devices:
-        filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(
-            lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_assist_devices)
-        )]
-    
+        filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(lambda x: any(item in x for item in selected_assist_devices))]
     if selected_digi_devices:
-        filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(
-            lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_digi_devices)
-        )]
+        filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(lambda x: any(item in x for item in selected_digi_devices))]
 ######################################################
     st.sidebar.header("Buscador de Variables")
     search_columns = df_results.columns.tolist()
