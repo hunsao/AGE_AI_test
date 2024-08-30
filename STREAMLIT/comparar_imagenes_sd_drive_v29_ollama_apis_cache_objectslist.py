@@ -303,7 +303,11 @@ def get_unique_objects(df, column_name):
                             unique_objects[item] = 1
             except:
                 pass
-    return unique_objects  # Devolver el diccionario
+
+    # Ordenar el diccionario por valor (conteo) en orden descendente
+    sorted_objects = dict(sorted(unique_objects.items(), key=lambda item: item[1], reverse=True))
+
+    return sorted_objects  # Devolver el diccionario ordenado
 
 #############################################################################################################################
 st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos</h1>", unsafe_allow_html=True)
