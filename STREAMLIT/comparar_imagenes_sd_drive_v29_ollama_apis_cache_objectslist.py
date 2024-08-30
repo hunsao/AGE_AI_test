@@ -384,10 +384,10 @@ if 'categories' not in st.session_state:
         "personality_short": ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"],
         "position_short": [],
         "person_count": ["1", "2", "3"],
-        "location": ["indoors", "outdoors", "'not possible to identify'"],
-        "objects": [],  
-        "objects_assist_devices": [],  
-        "objects_digi_devices": []  
+        "location": ["indoors", "outdoors", "'not possible to identify'"]#,
+        #"objects": [],  
+        #"objects_assist_devices": [],  
+        #"objects_digi_devices": []  
     }
     
 if not st.session_state.data_loaded:
