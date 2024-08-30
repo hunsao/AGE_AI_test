@@ -545,19 +545,19 @@ else:
     selected_objects = st.sidebar.multiselect(
         "Seleccionar Objetos",
         unique_objects,
-        key="multiselect_objects"
+        key="multiselect_objects_list"
     )
     
     selected_assist_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Assist Devices",
         unique_assist_devices,
-        key="multiselect_assist_devices"
+        key="multiselect_assist_devices_list"
     )
     
     selected_digi_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Digi Devices",
         unique_digi_devices,
-        key="multiselect_digi_devices"
+        key="multiselect_digi_devices_list"
     )
     
     # Aplicar filtros de objetos
