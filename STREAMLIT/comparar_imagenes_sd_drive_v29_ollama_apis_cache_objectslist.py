@@ -601,29 +601,33 @@ else:
     #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_digi_devices)
     #     )]
     if selected_objects:
+        filtered_df_objects = filtered_df.copy()  # Crear una copia para el filtro de objetos
         for obj_with_count in selected_objects:
-            # Extraer el nombre del objeto sin el conteo
-            obj = obj_with_count.split(" (")[0] 
-            # Convertir la columna a string
-            filtered_df['objects'] = filtered_df['objects'].astype(str)
-            # Filtrar y aplicar eval solo a las filas que contienen el objeto
-            filtered_df.loc[filtered_df['objects'].str.contains(obj), 'objects'] = filtered_df.loc[filtered_df['objects'].str.contains(obj), 'objects'].apply(eval)
-    if selected_assist_devices:
-        for obj_with_count in selected_assist_devices:
-            # Extraer el nombre del objeto sin el conteo
-            obj = obj_with_count.split(" (")[0] 
-            # Convertir la columna a string
-            filtered_df['objects_assist_devices'] = filtered_df['objects_assist_devices'].astype(str)
-            # Filtrar y aplicar eval solo a las filas que contienen el objeto
-            filtered_df.loc[filtered_df['objects_assist_devices'].str.contains(obj), 'objects_assist_devices'] = filtered_df.loc[filtered_df['objects_assist_devices'].str.contains(obj), 'objects_assist_devices'].apply(eval)
-    if selected_digi_devices:
-        for obj_with_count in selected_digi_devices:
-            # Extraer el nombre del objeto sin el conteo
             obj = obj_with_count.split(" (")[0]
-            # Convertir la columna a string
-            filtered_df['objects_digi_devices'] = filtered_df['objects_digi_devices'].astype(str)
-            # Filtrar y aplicar eval solo a las filas que contienen el objeto
-            filtered_df.loc[filtered_df['objects_digi_devices'].str.contains(obj), 'objects_digi_devices'] = filtered_df.loc[filtered_df['objects_digi_devices'].str.contains(obj), 'objects_digi_devices'].apply(eval)
+            filtered_df_objects['objects'] = filtered_df_objects['objects'].astype(str)
+            filtered_df_objects = filtered_df_objects[filtered_df_objects['objects'].str.contains(obj)]
+            filtered_df_objects['objects'] = filtered_df_objects['objects'].apply(eval)
+        filtered_df = filtered_df_objects  # Actualizar el DataFrame principal con el resultado del filtro de objetos
+    
+    if selected_assist_devices:
+        filtered_df_assist = filtered_df.copy()  # Crear una copia para el filtro de assist_devices
+        for obj_with_count in selected_assist_devices:
+            obj = obj_with_count.split(" (")[0]
+            filtered_df_assist['objects_assist_devices'] = filtered_df_assist['objects_assist_devices'].astype(str)
+            filtered_df_assist = filtered_df_assist[filtered_df_assist['objects_assist_devices'].str.contains(obj)]
+            filtered_df_assist['objects_assist_devices'] = filtered_df_assist['objects_assist_devices'].apply(eval)
+        filtered_df = filtered_df_assist  # Actualizar el DataFrame principal con el resultado del filtro de assist_devices
+    
+    if selected_digi_devices:
+        filtered_df_digi = filtered_df.copy()  # Crear una copia para el filtro de digi_devices
+        for obj_with_count in selected_digi_devices:
+            obj = obj_with_count.split(" (")[0]
+            filtered_df_digi['objects_digi_devices'] = filtered_df_digi['objects_digi_devices'].astype(str)
+            filtered_df_digi = filtered_df_digi[filtered_df_digi['objects_digi_devices'].str.contains(obj)]
+            filtered_df_digi['objects_digi_devices'] = filtered_df_digi['objects_digi_devices'].apply(eval)
+        filtered_df = filtered_df_digi  # Actualizar el DataFrame principal con el resultado del filtro de digi_devices
+
+# ... (resto del código) ...
 ######################################################
     st.sidebar.header("Buscador de Variables")
     search_columns = df_results.columns.tolist()
