@@ -114,7 +114,7 @@ def create_downloadable_zip(filtered_df, images1, images2):
 #         return None
 
 #@st.cache_data()
-@st.cache_resource(persist="disk")
+@st.cache_resource
 def get_drive_service():
     try:
         # Obtener la cadena codificada de la variable de entorno
