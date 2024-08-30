@@ -532,7 +532,7 @@ else:
         "Seleccionar Objetos",
         unique_objects,
         default=get_default("objects"),
-        key="multiselect_objects"
+        key="multiselect_objects_list"
     )
 
     # Filtro de Objetos Assist Devices
@@ -541,7 +541,7 @@ else:
         "Seleccionar Objetos Assist Devices",
         unique_assist_devices,
         default=get_default("objects_assist_devices"),
-        key="multiselect_objects_assist_devices"
+        key="multiselect_objects_assist_devices_list"
     )
 
     # Filtro de Objetos Digi Devices
@@ -550,7 +550,7 @@ else:
         "Seleccionar Objetos Digi Devices",
         unique_digi_devices,
         default=get_default("objects_digi_devices"),
-        key="multiselect_objects_digi_devices"
+        key="multiselect_objects_digi_devices_list"
     )
 
     # Aplicar filtros de objetos
