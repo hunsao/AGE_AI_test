@@ -602,22 +602,22 @@ else:
     #     )]
     if selected_objects:
         for obj in selected_objects:
-            # Convertir la columna a string, aplicar eval, buscar coincidencia y volver a convertir a lista
+            # Convertir la columna a string
             filtered_df['objects'] = filtered_df['objects'].astype(str)
-            filtered_df = filtered_df[filtered_df['objects'].apply(lambda x: obj in eval(x))]
-            filtered_df['objects'] = filtered_df['objects'].apply(eval)
+            # Filtrar y aplicar eval solo a las filas que contienen el objeto
+            filtered_df.loc[filtered_df['objects'].str.contains(obj), 'objects'] = filtered_df.loc[filtered_df['objects'].str.contains(obj), 'objects'].apply(eval)
     if selected_assist_devices:
         for obj in selected_assist_devices:
-            # Convertir la columna a string, aplicar eval, buscar coincidencia y volver a convertir a lista
+            # Convertir la columna a string
             filtered_df['objects_assist_devices'] = filtered_df['objects_assist_devices'].astype(str)
-            filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(lambda x: obj in eval(x))]
-            filtered_df['objects_assist_devices'] = filtered_df['objects_assist_devices'].apply(eval)
+            # Filtrar y aplicar eval solo a las filas que contienen el objeto
+            filtered_df.loc[filtered_df['objects_assist_devices'].str.contains(obj), 'objects_assist_devices'] = filtered_df.loc[filtered_df['objects_assist_devices'].str.contains(obj), 'objects_assist_devices'].apply(eval)
     if selected_digi_devices:
         for obj in selected_digi_devices:
-            # Convertir la columna a string, aplicar eval, buscar coincidencia y volver a convertir a lista
+            # Convertir la columna a string
             filtered_df['objects_digi_devices'] = filtered_df['objects_digi_devices'].astype(str)
-            filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(lambda x: obj in eval(x))]
-            filtered_df['objects_digi_devices'] = filtered_df['objects_digi_devices'].apply(eval)
+            # Filtrar y aplicar eval solo a las filas que contienen el objeto
+            filtered_df.loc[filtered_df['objects_digi_devices'].str.contains(obj), 'objects_digi_devices'] = filtered_df.loc[filtered_df['objects_digi_devices'].str.contains(obj), 'objects_digi_devices'].apply(eval)
 ######################################################
     st.sidebar.header("Buscador de Variables")
     search_columns = df_results.columns.tolist()
