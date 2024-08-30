@@ -310,7 +310,7 @@ def get_unique_objects(df, column_name):
     return sorted_objects  # Devolver el diccionario ordenado
 
 #############################################################################################################################
-st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos. v29 30/08</h1>", unsafe_allow_html=True)
 
 # Inicializar categorías fuera del bloque if/else
 if 'categories' not in st.session_state:
@@ -500,7 +500,7 @@ else:
     images1 = st.session_state.images1
     images2 = st.session_state.images2
 
-    st.sidebar.header("Filtrar Imágenes")
+    st.sidebar.header("Filtrar imágenes")
 
     group_filter = st.sidebar.selectbox("Seleccionar Grupo", ["Todos", "NEUTRAL", "OLDER"], index=["Todos", "NEUTRAL", "OLDER"].index(st.session_state.group_filter))
     st.session_state.group_filter = group_filter
