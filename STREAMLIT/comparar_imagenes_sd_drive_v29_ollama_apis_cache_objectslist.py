@@ -269,20 +269,41 @@ def get_unique_list_items(df_results, category):
     return []
 
 @st.cache_data()
+# def get_unique_objects(df, column_name):
+#     unique_objects = set()
+#     for objects_list in df[column_name].dropna():
+#         if isinstance(objects_list, list):
+#             unique_objects.update(objects_list)
+#         elif isinstance(objects_list, str):
+#             # Asumiendo que la cadena es una representación de lista
+#             try:
+#                 objects = eval(objects_list)
+#                 if isinstance(objects, list):
+#                     unique_objects.update(objects)
+#             except:
+#                 pass  # Ignorar si no se puede evaluar como lista
+#     return sorted(list(unique_objects))
 def get_unique_objects(df, column_name):
-    unique_objects = set()
+    unique_objects = {}  # Usar un diccionario para almacenar el conteo
     for objects_list in df[column_name].dropna():
         if isinstance(objects_list, list):
-            unique_objects.update(objects_list)
+            for item in objects_list:
+                if item in unique_objects:
+                    unique_objects[item] += 1
+                else:
+                    unique_objects[item] = 1
         elif isinstance(objects_list, str):
-            # Asumiendo que la cadena es una representación de lista
             try:
                 objects = eval(objects_list)
                 if isinstance(objects, list):
-                    unique_objects.update(objects)
+                    for item in objects:
+                        if item in unique_objects:
+                            unique_objects[item] += 1
+                        else:
+                            unique_objects[item] = 1
             except:
-                pass  # Ignorar si no se puede evaluar como lista
-    return sorted(list(unique_objects))
+                pass
+    return unique_objects  # Devolver el diccionario
 
 #############################################################################################################################
 st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos</h1>", unsafe_allow_html=True)
@@ -541,19 +562,22 @@ else:
     # Crear selectores para cada categoría de objetos
     selected_objects = st.sidebar.multiselect(
         "Seleccionar Objetos (SIN LISTA)",
-        unique_objects,
+        #unique_objects,
+        [f"{obj} ({count})" for obj, count in unique_objects.items()], # Formatear las opciones
         key="multiselect_objects_list"
     )
     
     selected_assist_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Assist Devices (SIN LISTA)",
-        unique_assist_devices,
+        #unique_assist_devices,
+        [f"{obj} ({count})" for obj, count in unique_assist_devices.items()],
         key="multiselect_assist_devices_list"
     )
     
     selected_digi_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Digi Devices (SIN LISTA)",
-        unique_digi_devices,
+        #unique_digi_devices,
+        [f"{obj} ({count})" for obj, count in unique_digi_devices.items()],
         key="multiselect_digi_devices_list"
     )
     
