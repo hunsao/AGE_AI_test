@@ -601,19 +601,25 @@ else:
     #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_digi_devices)
     #     )]
     if selected_objects:
-        for obj in selected_objects:
+        for obj_with_count in selected_objects:
+            # Extraer el nombre del objeto sin el conteo
+            obj = obj_with_count.split(" (")[0] 
             # Convertir la columna a string
             filtered_df['objects'] = filtered_df['objects'].astype(str)
             # Filtrar y aplicar eval solo a las filas que contienen el objeto
             filtered_df.loc[filtered_df['objects'].str.contains(obj), 'objects'] = filtered_df.loc[filtered_df['objects'].str.contains(obj), 'objects'].apply(eval)
     if selected_assist_devices:
-        for obj in selected_assist_devices:
+        for obj_with_count in selected_assist_devices:
+            # Extraer el nombre del objeto sin el conteo
+            obj = obj_with_count.split(" (")[0] 
             # Convertir la columna a string
             filtered_df['objects_assist_devices'] = filtered_df['objects_assist_devices'].astype(str)
             # Filtrar y aplicar eval solo a las filas que contienen el objeto
             filtered_df.loc[filtered_df['objects_assist_devices'].str.contains(obj), 'objects_assist_devices'] = filtered_df.loc[filtered_df['objects_assist_devices'].str.contains(obj), 'objects_assist_devices'].apply(eval)
     if selected_digi_devices:
-        for obj in selected_digi_devices:
+        for obj_with_count in selected_digi_devices:
+            # Extraer el nombre del objeto sin el conteo
+            obj = obj_with_count.split(" (")[0]
             # Convertir la columna a string
             filtered_df['objects_digi_devices'] = filtered_df['objects_digi_devices'].astype(str)
             # Filtrar y aplicar eval solo a las filas que contienen el objeto
