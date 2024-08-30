@@ -268,6 +268,15 @@ def get_unique_list_items(df_results, category):
         return sorted(unique_items)
     return []
 
+@st.cache_data()
+def get_unique_objects(df_results, column_name):
+    unique_objects = set()
+    for _, row in df_results.iterrows():
+        objects_list = row[column_name]
+        if isinstance(objects_list, list):
+            unique_objects.update(objects_list)
+    return sorted(list(unique_objects))
+
 #############################################################################################################################
 st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos</h1>", unsafe_allow_html=True)
 
