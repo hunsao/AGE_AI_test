@@ -167,14 +167,16 @@ def extract_folder_id(url):
 def get_folder_and_file_ids(_service, parent_folder_name):
     try:
         # Find the parent folder
-        parent_folder_results = service.files().list(
+        parent_folder_results = _service.files().list(
             q=f"name='{parent_folder_name}' and mimeType='application/vnd.google-apps.folder'",
             fields="files(id)"
         ).execute()
         parent_folders = parent_folder_results.get('files', [])
+        
         if not parent_folders:
             st.error(f"No se encontró la carpeta principal '{parent_folder_name}'.")
             return None, None
+            
         parent_folder_id = parent_folders[0]['id']
         
         # Search for IMAGES folder and CSV file in a single request
