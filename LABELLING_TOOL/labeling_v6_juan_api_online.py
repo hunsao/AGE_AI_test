@@ -11,9 +11,9 @@ import base64
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload, HttpRequest, build_http
 from googleapiclient.errors import HttpError
-from googleapiclient.http import HttpRequest
+from google.auth.transport.requests import Request
 
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import socket
@@ -91,14 +91,22 @@ def get_google_services():
             ]
         )
         
-        # Create a custom http object with increased timeout
-        http = build_http()
-        http.timeout = 60  # Increase timeout to 30 seconds (adjust as needed)
+        # # Create a custom http object with increased timeout
+        # http = build_http()
+        # http.timeout = 60  # Increase timeout to 30 seconds (adjust as needed)
+
+        # # Construir los servicios
+        # drive_service = build('drive', 'v3', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
+        # sheets_service = build('sheets', 'v4', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
+
+        # Crear el objeto Request con un tiempo de espera personalizado
+        request = Request()
+        request.timeout = 60  # Establece el tiempo de espera en 60 segundos
 
         # Construir los servicios
-        drive_service = build('drive', 'v3', credentials=credentials)#, http=http, requestBuilder=ExponentialBackoffHttpRequest)
-        sheets_service = build('sheets', 'v4', credentials=credentials)#, http=http, requestBuilder=ExponentialBackoffHttpRequest)
-
+        drive_service = build('drive', 'v3', credentials=credentials, requestBuilder=request)
+        sheets_service = build('sheets', 'v4', credentials=credentials, requestBuilder=request)
+        
         return drive_service, sheets_service
     except Exception as e:
         st.error(f"Error al obtener los servicios de Google: {str(e)}")
