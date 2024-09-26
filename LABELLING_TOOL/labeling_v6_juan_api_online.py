@@ -100,8 +100,8 @@ def get_google_services():
         # sheets_service = build('sheets', 'v4', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
 
         # Construir los servicios
-        drive_service = build('drive', 'v3', credentials=credentials, http=http)
-        sheets_service = build('sheets', 'v4', credentials=credentials,  http=http)
+        drive_service = build('drive', 'v3', credentials=credentials)
+        sheets_service = build('sheets', 'v4', credentials=credentials)
         
         return drive_service, sheets_service
     except Exception as e:
