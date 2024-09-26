@@ -91,21 +91,17 @@ def get_google_services():
             ]
         )
         
-        # # Create a custom http object with increased timeout
-        # http = build_http()
-        # http.timeout = 60  # Increase timeout to 30 seconds (adjust as needed)
+        # Create a custom http object with increased timeout
+        http = build_http()
+        http.timeout = 60  # Increase timeout to 30 seconds (adjust as needed)
 
         # # Construir los servicios
         # drive_service = build('drive', 'v3', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
         # sheets_service = build('sheets', 'v4', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
 
-        # Crear el objeto Request con un tiempo de espera personalizado
-        request = Request()
-        request.timeout = 60  # Establece el tiempo de espera en 60 segundos
-
         # Construir los servicios
-        drive_service = build('drive', 'v3', credentials=credentials, requestBuilder=request)
-        sheets_service = build('sheets', 'v4', credentials=credentials, requestBuilder=request)
+        drive_service = build('drive', 'v3', credentials=credentials, http=http)
+        sheets_service = build('sheets', 'v4', credentials=credentials,  http=http)
         
         return drive_service, sheets_service
     except Exception as e:
