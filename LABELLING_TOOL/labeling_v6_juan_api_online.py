@@ -15,6 +15,9 @@ from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from googleapiclient.errors import HttpError
 from googleapiclient.http import HttpRequest
 
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+import socket
+
 # Define the questionnaire structure
 questionnaire = {
     "ROUND 1": [
@@ -55,7 +58,17 @@ questionnaire = {
 #         st.error(f"Error al obtener los servicios de Google: {str(e)}")
 #         return None, None
 
+class ExponentialBackoffHttpRequest(HttpRequest):
+    def __init__(self, *args, **kwargs):
+        super(ExponentialBackoffHttpRequest, self).__init__(*args, **kwargs)
+        self.max_retries = 5
+
 @st.cache_resource
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=4, max=10),
+    retry=retry_if_exception_type((socket.timeout, TimeoutError))
+
 def get_google_services():
     try:
         # Obtener la cadena codificada de la variable de entorno
@@ -77,10 +90,14 @@ def get_google_services():
                 'https://www.googleapis.com/auth/spreadsheets'
             ]
         )
+        
+        # Create a custom http object with increased timeout
+        http = build_http()
+        http.timeout = 60  # Increase timeout to 30 seconds (adjust as needed)
 
         # Construir los servicios
-        drive_service = build('drive', 'v3', credentials=credentials)
-        sheets_service = build('sheets', 'v4', credentials=credentials)
+        drive_service = build('drive', 'v3', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
+        sheets_service = build('sheets', 'v4', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
 
         return drive_service, sheets_service
     except Exception as e:
@@ -106,33 +123,73 @@ def extract_folder_id(url):
         return match.group(1)
     return None
 
-def find_images_folder_and_csv_id(service, parent_folder_name):
+# def find_images_folder_and_csv_id(service, parent_folder_name):
+#     try:
+#         results = service.files().list(
+#             q=f"name='{parent_folder_name}' and mimeType='application/vnd.google-apps.folder'",
+#             fields="nextPageToken, files(id)"
+#         ).execute()
+#         parent_folders = results.get('files', [])
+#         if not parent_folders:
+#             st.error(f"No se encontró la carpeta principal '{parent_folder_name}'.")
+#             return None, None
+#         parent_folder_id = parent_folders[0]['id']
+#         results = service.files().list(
+#             q=f"'{parent_folder_id}' in parents",
+#             fields="nextPageToken, files(id, name, mimeType)"
+#         ).execute()
+#         items = results.get('files', [])
+#         images_folder_id = None
+#         csv_file_id = None
+#         for item in items:
+#             if item['name'] == 'IMAGES' and item['mimeType'] == 'application/vnd.google-apps.folder':
+#                 images_folder_id = item['id']
+#             elif item['name'].endswith('.csv') and item['mimeType'] == 'text/csv':
+#                 csv_file_id = item['id']
+#         if not images_folder_id:
+#             st.error("No se encontró la carpeta 'IMAGES'.")
+#         if not csv_file_id:
+#             st.error("No se encontró el archivo CSV.")
+#         return images_folder_id, csv_file_id
+#     except Exception as e:
+#         st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
+#         return None, None
+
+@st.cache_data(ttl=3600)  # Cache for 1 hour
+def get_folder_and_file_ids(service, parent_folder_name):
     try:
-        results = service.files().list(
+        # Find the parent folder
+        parent_folder_results = service.files().list(
             q=f"name='{parent_folder_name}' and mimeType='application/vnd.google-apps.folder'",
-            fields="nextPageToken, files(id)"
+            fields="files(id)"
         ).execute()
-        parent_folders = results.get('files', [])
+        parent_folders = parent_folder_results.get('files', [])
         if not parent_folders:
             st.error(f"No se encontró la carpeta principal '{parent_folder_name}'.")
             return None, None
         parent_folder_id = parent_folders[0]['id']
+        
+        # Search for IMAGES folder and CSV file in a single request
         results = service.files().list(
-            q=f"'{parent_folder_id}' in parents",
-            fields="nextPageToken, files(id, name, mimeType)"
+            q=f"'{parent_folder_id}' in parents and (name='IMAGES' or mimeType='text/csv')",
+            fields="files(id, name, mimeType)"
         ).execute()
+        
         items = results.get('files', [])
         images_folder_id = None
         csv_file_id = None
+        
         for item in items:
             if item['name'] == 'IMAGES' and item['mimeType'] == 'application/vnd.google-apps.folder':
                 images_folder_id = item['id']
-            elif item['name'].endswith('.csv') and item['mimeType'] == 'text/csv':
+            elif item['mimeType'] == 'text/csv':
                 csv_file_id = item['id']
+        
         if not images_folder_id:
             st.error("No se encontró la carpeta 'IMAGES'.")
         if not csv_file_id:
             st.error("No se encontró el archivo CSV.")
+        
         return images_folder_id, csv_file_id
     except Exception as e:
         st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
@@ -179,6 +236,13 @@ def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_
     except Exception as e:
         st.error(f"Error al guardar las etiquetas en Google Sheets: {str(e)}")
 
+@st.cache_data(ttl=3600)  # Cache for 1 hour
+def get_folder_and_file_ids(service, parent_folder_name):
+    return find_images_folder_and_csv_id(service, parent_folder_name)
+
+# In your main function:
+images_folder_id, csv_file_id = get_folder_and_file_ids(drive_service, parent_folder_name)
+
 def main():
     st.set_page_config(layout="wide")
 
@@ -214,7 +278,8 @@ def main():
     #st.sidebar.title("Progress")
 
     if parent_folder_id:
-        images_folder_id, csv_file_id = find_images_folder_and_csv_id(drive_service, parent_folder_name)
+        #images_folder_id, csv_file_id = find_images_folder_and_csv_id(drive_service, parent_folder_name)
+        images_folder_id, csv_file_id = get_folder_and_file_ids(drive_service, parent_folder_name)
         if images_folder_id and csv_file_id:
             image_list = list_images_in_folder(drive_service, images_folder_id)
 
