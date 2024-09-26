@@ -236,13 +236,6 @@ def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_
     except Exception as e:
         st.error(f"Error al guardar las etiquetas en Google Sheets: {str(e)}")
 
-@st.cache_data(ttl=3600)  # Cache for 1 hour
-def get_folder_and_file_ids(service, parent_folder_name):
-    return find_images_folder_and_csv_id(service, parent_folder_name)
-
-# In your main function:
-images_folder_id, csv_file_id = get_folder_and_file_ids(drive_service, parent_folder_name)
-
 def main():
     st.set_page_config(layout="wide")
 
