@@ -333,9 +333,8 @@ def main():
 
                     # Use the existing response if available, otherwise default to None
                     default_answer = st.session_state.responses.get(current_question["question"])
-
                     try:
-                        index = None if default_answer is None else current_question["options"].index(default_answer)
+                        index = current_question["options"].index(default_answer) if default_answer in current_question["options"] else None
                     except ValueError:
                         index = None  # Default to no preselected option if default_answer is not found
 
