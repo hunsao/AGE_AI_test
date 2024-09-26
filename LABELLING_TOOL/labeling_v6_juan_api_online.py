@@ -11,12 +11,9 @@ import base64
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload, HttpRequest, build_http
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from googleapiclient.errors import HttpError
-from google.auth.transport.requests import Request
-
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-import socket
+from googleapiclient.http import HttpRequest
 
 # Define the questionnaire structure
 questionnaire = {
@@ -58,17 +55,7 @@ questionnaire = {
 #         st.error(f"Error al obtener los servicios de Google: {str(e)}")
 #         return None, None
 
-class ExponentialBackoffHttpRequest(HttpRequest):
-    def __init__(self, *args, **kwargs):
-        super(ExponentialBackoffHttpRequest, self).__init__(*args, **kwargs)
-        self.max_retries = 5
-
 @st.cache_resource
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((socket.timeout, TimeoutError)))
-
 def get_google_services():
     try:
         # Obtener la cadena codificada de la variable de entorno
@@ -90,16 +77,11 @@ def get_google_services():
                 'https://www.googleapis.com/auth/spreadsheets'
             ]
         )
-        
-        # Create a custom http object with increased timeout
-        # # Construir los servicios
-        # drive_service = build('drive', 'v3', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
-        # sheets_service = build('sheets', 'v4', credentials=credentials, http=http, requestBuilder=ExponentialBackoffHttpRequest)
 
         # Construir los servicios
         drive_service = build('drive', 'v3', credentials=credentials)
         sheets_service = build('sheets', 'v4', credentials=credentials)
-        
+
         return drive_service, sheets_service
     except Exception as e:
         st.error(f"Error al obtener los servicios de Google: {str(e)}")
@@ -124,79 +106,36 @@ def extract_folder_id(url):
         return match.group(1)
     return None
 
-# def find_images_folder_and_csv_id(service, parent_folder_name):
-#     try:
-#         results = service.files().list(
-#             q=f"name='{parent_folder_name}' and mimeType='application/vnd.google-apps.folder'",
-#             fields="nextPageToken, files(id)"
-#         ).execute()
-#         parent_folders = results.get('files', [])
-#         if not parent_folders:
-#             st.error(f"No se encontró la carpeta principal '{parent_folder_name}'.")
-#             return None, None
-#         parent_folder_id = parent_folders[0]['id']
-#         results = service.files().list(
-#             q=f"'{parent_folder_id}' in parents",
-#             fields="nextPageToken, files(id, name, mimeType)"
-#         ).execute()
-#         items = results.get('files', [])
-#         images_folder_id = None
-#         csv_file_id = None
-#         for item in items:
-#             if item['name'] == 'IMAGES' and item['mimeType'] == 'application/vnd.google-apps.folder':
-#                 images_folder_id = item['id']
-#             elif item['name'].endswith('.csv') and item['mimeType'] == 'text/csv':
-#                 csv_file_id = item['id']
-#         if not images_folder_id:
-#             st.error("No se encontró la carpeta 'IMAGES'.")
-#         if not csv_file_id:
-#             st.error("No se encontró el archivo CSV.")
-#         return images_folder_id, csv_file_id
-#     except Exception as e:
-#         st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
-#         return None, None
-
-#@st.cache_data(ttl=3600)  # Cache for 1 hour
-def get_folder_and_file_ids(service, parent_folder_name):
+def find_images_folder_and_csv_id(service, parent_folder_name):
     try:
-        # Find the parent folder
-        parent_folder_results = service.files().list(
+        results = service.files().list(
             q=f"name='{parent_folder_name}' and mimeType='application/vnd.google-apps.folder'",
-            fields="files(id)"
+            fields="nextPageToken, files(id)"
         ).execute()
-        parent_folders = parent_folder_results.get('files', [])
+        parent_folders = results.get('files', [])
         if not parent_folders:
             st.error(f"No se encontró la carpeta principal '{parent_folder_name}'.")
             return None, None
         parent_folder_id = parent_folders[0]['id']
-        
-        # Search for IMAGES folder and CSV file in a single request
         results = service.files().list(
-            q=f"'{parent_folder_id}' in parents and (name='IMAGES' or mimeType='text/csv')",
-            fields="files(id, name, mimeType)"
+            q=f"'{parent_folder_id}' in parents",
+            fields="nextPageToken, files(id, name, mimeType)"
         ).execute()
-        
         items = results.get('files', [])
         images_folder_id = None
         csv_file_id = None
-        
         for item in items:
             if item['name'] == 'IMAGES' and item['mimeType'] == 'application/vnd.google-apps.folder':
                 images_folder_id = item['id']
-            elif item['mimeType'] == 'text/csv':
+            elif item['name'].endswith('.csv') and item['mimeType'] == 'text/csv':
                 csv_file_id = item['id']
-        
         if not images_folder_id:
             st.error("No se encontró la carpeta 'IMAGES'.")
         if not csv_file_id:
             st.error("No se encontró el archivo CSV.")
-        
         return images_folder_id, csv_file_id
-    except HttpError as e:
-        st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
-        return None, None
     except Exception as e:
-        st.error(f"Error inesperado: {str(e)}")
+        st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
         return None, None
 
 @st.cache_data()
@@ -275,8 +214,7 @@ def main():
     #st.sidebar.title("Progress")
 
     if parent_folder_id:
-        #images_folder_id, csv_file_id = find_images_folder_and_csv_id(drive_service, parent_folder_name)
-        images_folder_id, csv_file_id = get_folder_and_file_ids(drive_service, parent_folder_name)
+        images_folder_id, csv_file_id = find_images_folder_and_csv_id(drive_service, parent_folder_name)
         if images_folder_id and csv_file_id:
             image_list = list_images_in_folder(drive_service, images_folder_id)
 
@@ -297,8 +235,7 @@ def main():
                     if st.session_state.user_id:
                         if st.button("Start Questionnaire"):
                             st.session_state.page = 'questionnaire'
-                            #st.rerun()
-                            st.experimental_rerun()
+                            st.rerun()
                     else:
                         st.warning("Please enter your user ID to start the questionnaire.")
 
@@ -311,8 +248,7 @@ def main():
                         if st.session_state.review_mode or question_number <= st.session_state.current_question:
                             if st.sidebar.button(f"✅ {q['question'][:100]}...", key=f"nav_{round_name}_{i}"):
                                 st.session_state.current_question = question_number - 1
-                                #st.rerun()
-                                st.experimental_rerun()
+                                st.rerun()
                         else:
                             st.sidebar.button(f"⬜ {q['question'][:100]}...", key=f"nav_{round_name}_{i}", disabled=True)
 
@@ -333,53 +269,7 @@ def main():
 
                     # Use the existing response if available, otherwise default to None
                     default_answer = st.session_state.responses.get(current_question["question"])
-                    # Debugging: Check the current question and options
-                    st.write(f"Current Question: {current_question}")
-                    st.write(f"Default Answer: {default_answer}")
-                    
-                    # Ensure options is a list and has elements
-                    options = current_question.get("options", [])
-                    if not isinstance(options, list) or len(options) == 0:
-                        st.error("No options available for this question.")
-                        return
-
-                    # Calculate index safely
-                    try:
-                        if default_answer in options:
-                            index = options.index(default_answer)
-                        else:
-                            index = None
-                    except ValueError:
-                        index = None
-
-                    # Debugging: Print index and options
-                    st.write(f"Options: {current_question['options']}")
-                    st.write(f"Index: {index}")
-
-                    # Ensure index is valid for options
-                    if index is not None and (index < 0 or index >= len(options)):
-                        index = None
-                    
-                    # answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
-                    answer = st.radio(
-                        "Select an option:",
-                        current_question["options"],
-                        key=f"question_{st.session_state.current_question}",
-                        index=index
-                    )
-                    
-                    # Render the radio button
-                    try:
-                        answer = st.radio(
-                            "Select an option:",
-                            options,
-                            key=f"question_{st.session_state.current_question}",
-                            index=index
-                        )
-                    except Exception as e:
-                        st.error(f"Error rendering radio button: {e}")
-                        st.write(f"Options: {options}")
-                        st.write(f"Index: {index}")
+                    answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
 
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
@@ -390,22 +280,9 @@ def main():
                                 st.session_state.review_mode = True
                             else:
                                 st.session_state.current_image = random.choice(image_list)
-                            st.experimental_rerun()
+                            st.rerun()
                         else:
-                            st.warning("Please select an answer before proceeding.")                    
-                    # if st.button("Next Question", key="next_button"):
-                    #     if answer is not None:
-                    #         st.session_state.responses[current_question["question"]] = answer
-                    #         st.session_state.current_question += 1
-                    #         if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
-                    #             st.session_state.page = 'review'
-                    #             st.session_state.review_mode = True
-                    #         else:
-                    #             st.session_state.current_image = random.choice(image_list)
-                    #         #st.rerun()
-                    #         st.experimental_rerun()
-                    #     else:
-                    #         st.warning("Please select an answer before proceeding.")
+                            st.warning("Please select an answer before proceeding.")
 
                 with col2:
                     image_bytes = download_file_from_google_drive(drive_service, st.session_state.current_image['id'])
@@ -424,15 +301,13 @@ def main():
                     st.session_state.current_question = 0
                     st.session_state.page = 'questionnaire'
                     st.session_state.review_mode = True
-                    #st.rerun()
-                    st.experimental_rerun()
+                    st.rerun()
 
                 if st.button("Enviar cuestionario"):
                     save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, st.session_state.current_image['name'], st.session_state.responses)
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
-                    #st.rerun()
-                    st.experimental_rerun()
+                    st.rerun()
 
             elif st.session_state.page == 'end':
                 st.title("Thanks for participating! 😊")
@@ -445,8 +320,7 @@ def main():
                     st.session_state.page = 'start'
                     st.session_state.user_id = ''
                     st.session_state.review_mode = False
-                    #st.rerun()
-                    st.experimental_rerun()
+                    st.rerun()
 
     else:
         st.error("No se pudo obtener el ID de la carpeta principal.")
