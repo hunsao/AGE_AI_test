@@ -163,24 +163,26 @@ def extract_folder_id(url):
 #         st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
 #         return None, None
 
-@st.cache_data(ttl=3600)  # Cache for 1 hour
+#@st.cache_data(ttl=3600)  # Cache for 1 hour
+@st.cache_data
 def get_folder_and_file_ids(_service, parent_folder_name):
     try:
-        # Find the parent folder
+        # Encuentra la carpeta principal
         parent_folder_results = _service.files().list(
             q=f"name='{parent_folder_name}' and mimeType='application/vnd.google-apps.folder'",
             fields="files(id)"
         ).execute()
+        
         parent_folders = parent_folder_results.get('files', [])
         
         if not parent_folders:
             st.error(f"No se encontró la carpeta principal '{parent_folder_name}'.")
             return None, None
-            
+        
         parent_folder_id = parent_folders[0]['id']
         
-        # Search for IMAGES folder and CSV file in a single request
-        results = service.files().list(
+        # Busca la carpeta IMAGES y el archivo CSV en una sola consulta
+        results = _service.files().list(
             q=f"'{parent_folder_id}' in parents and (name='IMAGES' or mimeType='text/csv')",
             fields="files(id, name, mimeType)"
         ).execute()
@@ -201,9 +203,11 @@ def get_folder_and_file_ids(_service, parent_folder_name):
             st.error("No se encontró el archivo CSV.")
         
         return images_folder_id, csv_file_id
+    
     except Exception as e:
         st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
         return None, None
+
 
 @st.cache_data()
 def list_images_in_folder(_service, folder_id):
