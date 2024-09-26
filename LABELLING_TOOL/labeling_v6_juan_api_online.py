@@ -333,20 +333,26 @@ def main():
 
                     # Use the existing response if available, otherwise default to None
                     default_answer = st.session_state.responses.get(current_question["question"])
-                    # try:
-                    #     index = current_question["options"].index(default_answer) if default_answer in current_question["options"] else None
-                    # except ValueError:
-                    #     index = None  # Default to no preselected option if default_answer is not found
-                    try:
-                        # Find index of default_answer in options
-                        index = current_question["options"].index(default_answer) if default_answer in current_question["options"] else None
-                    except ValueError:
-                        index = None  # Default to no preselected option if default_answer is not found
-
-                                       # Debugging: print index and options
-                    st.write(f"Options: {current_question['options']}")
+                    # Debugging: Check the current question and options
+                    st.write(f"Current Question: {current_question}")
                     st.write(f"Default Answer: {default_answer}")
+                    
+                    # Calculate index safely
+                    try:
+                        if default_answer in current_question["options"]:
+                            index = current_question["options"].index(default_answer)
+                        else:
+                            index = None
+                    except ValueError:
+                        index = None
+
+                    # Debugging: Print index and options
+                    st.write(f"Options: {current_question['options']}")
                     st.write(f"Index: {index}")
+
+                    # Ensure index is valid for options
+                    if index is not None and (index < 0 or index >= len(current_question["options"])):
+                        index = None
                     
                     # answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
                     answer = st.radio(
@@ -356,6 +362,19 @@ def main():
                         index=index
                     )
                     
+                    # Render the radio button
+                    try:
+                        answer = st.radio(
+                            "Select an option:",
+                            current_question["options"],
+                            key=f"question_{st.session_state.current_question}",
+                            index=index
+                        )
+                    except Exception as e:
+                        st.error(f"Error rendering radio button: {e}")
+                        st.write(f"Options: {current_question['options']}")
+                        st.write(f"Index: {index}")
+
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
                             st.session_state.responses[current_question["question"]] = answer
@@ -365,10 +384,22 @@ def main():
                                 st.session_state.review_mode = True
                             else:
                                 st.session_state.current_image = random.choice(image_list)
-                            #st.rerun()
                             st.experimental_rerun()
                         else:
-                            st.warning("Please select an answer before proceeding.")
+                            st.warning("Please select an answer before proceeding.")                    
+                    # if st.button("Next Question", key="next_button"):
+                    #     if answer is not None:
+                    #         st.session_state.responses[current_question["question"]] = answer
+                    #         st.session_state.current_question += 1
+                    #         if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
+                    #             st.session_state.page = 'review'
+                    #             st.session_state.review_mode = True
+                    #         else:
+                    #             st.session_state.current_image = random.choice(image_list)
+                    #         #st.rerun()
+                    #         st.experimental_rerun()
+                    #     else:
+                    #         st.warning("Please select an answer before proceeding.")
 
                 with col2:
                     image_bytes = download_file_from_google_drive(drive_service, st.session_state.current_image['id'])
