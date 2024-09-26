@@ -333,6 +333,12 @@ def main():
 
                     # Use the existing response if available, otherwise default to None
                     default_answer = st.session_state.responses.get(current_question["question"])
+
+                    try:
+                        index = None if default_answer is None else current_question["options"].index(default_answer)
+                    except ValueError:
+                        index = None  # Default to no preselected option if default_answer is not found
+
                     answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
 
                     if st.button("Next Question", key="next_button"):
