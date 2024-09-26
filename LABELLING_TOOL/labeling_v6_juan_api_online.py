@@ -248,7 +248,7 @@ def main():
                         if st.session_state.review_mode or question_number <= st.session_state.current_question:
                             if st.sidebar.button(f"✅ {q['question'][:100]}...", key=f"nav_{round_name}_{i}"):
                                 st.session_state.current_question = question_number - 1
-                                st.experimental_rerun()
+                                st.rerun()
                         else:
                             st.sidebar.button(f"⬜ {q['question'][:100]}...", key=f"nav_{round_name}_{i}", disabled=True)
 
@@ -280,7 +280,7 @@ def main():
                                 st.session_state.review_mode = True
                             else:
                                 st.session_state.current_image = random.choice(image_list)
-                            st.experimental_rerun()
+                            st.rerun()
                         else:
                             st.warning("Please select an answer before proceeding.")
 
@@ -301,13 +301,13 @@ def main():
                     st.session_state.current_question = 0
                     st.session_state.page = 'questionnaire'
                     st.session_state.review_mode = True
-                    st.experimental_rerun()
+                    st.rerun()
 
                 if st.button("Enviar cuestionario"):
                     save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, st.session_state.current_image['name'], st.session_state.responses)
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
-                    st.experimental_rerun()
+                    st.rerun()
 
             elif st.session_state.page == 'end':
                 st.title("Thanks for participating! 😊")
@@ -320,7 +320,7 @@ def main():
                     st.session_state.page = 'start'
                     st.session_state.user_id = ''
                     st.session_state.review_mode = False
-                    st.experimental_rerun()
+                    st.rerun()
 
     else:
         st.error("No se pudo obtener el ID de la carpeta principal.")
