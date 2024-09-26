@@ -163,8 +163,8 @@ def extract_folder_id(url):
 #         st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
 #         return None, None
 
-#@st.cache_data(ttl=3600)  # Cache for 1 hour
-def get_folder_and_file_ids(service, parent_folder_name):
+@st.cache_data(ttl=3600)  # Cache for 1 hour
+def get_folder_and_file_ids(_service, parent_folder_name):
     try:
         # Find the parent folder
         parent_folder_results = service.files().list(
