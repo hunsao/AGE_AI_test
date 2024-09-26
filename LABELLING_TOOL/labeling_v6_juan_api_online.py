@@ -337,10 +337,16 @@ def main():
                     st.write(f"Current Question: {current_question}")
                     st.write(f"Default Answer: {default_answer}")
                     
+                    # Ensure options is a list and has elements
+                    options = current_question.get("options", [])
+                    if not isinstance(options, list) or len(options) == 0:
+                        st.error("No options available for this question.")
+                        return
+
                     # Calculate index safely
                     try:
-                        if default_answer in current_question["options"]:
-                            index = current_question["options"].index(default_answer)
+                        if default_answer in options:
+                            index = options.index(default_answer)
                         else:
                             index = None
                     except ValueError:
@@ -351,7 +357,7 @@ def main():
                     st.write(f"Index: {index}")
 
                     # Ensure index is valid for options
-                    if index is not None and (index < 0 or index >= len(current_question["options"])):
+                    if index is not None and (index < 0 or index >= len(options)):
                         index = None
                     
                     # answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
@@ -366,13 +372,13 @@ def main():
                     try:
                         answer = st.radio(
                             "Select an option:",
-                            current_question["options"],
+                            options,
                             key=f"question_{st.session_state.current_question}",
                             index=index
                         )
                     except Exception as e:
                         st.error(f"Error rendering radio button: {e}")
-                        st.write(f"Options: {current_question['options']}")
+                        st.write(f"Options: {options}")
                         st.write(f"Index: {index}")
 
                     if st.button("Next Question", key="next_button"):
