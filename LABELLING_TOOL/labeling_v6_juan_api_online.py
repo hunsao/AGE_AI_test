@@ -333,13 +333,29 @@ def main():
 
                     # Use the existing response if available, otherwise default to None
                     default_answer = st.session_state.responses.get(current_question["question"])
+                    # try:
+                    #     index = current_question["options"].index(default_answer) if default_answer in current_question["options"] else None
+                    # except ValueError:
+                    #     index = None  # Default to no preselected option if default_answer is not found
                     try:
+                        # Find index of default_answer in options
                         index = current_question["options"].index(default_answer) if default_answer in current_question["options"] else None
                     except ValueError:
                         index = None  # Default to no preselected option if default_answer is not found
 
-                    answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
-
+                                       # Debugging: print index and options
+                    st.write(f"Options: {current_question['options']}")
+                    st.write(f"Default Answer: {default_answer}")
+                    st.write(f"Index: {index}")
+                    
+                    # answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
+                    answer = st.radio(
+                        "Select an option:",
+                        current_question["options"],
+                        key=f"question_{st.session_state.current_question}",
+                        index=index
+                    )
+                    
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
                             st.session_state.responses[current_question["question"]] = answer
