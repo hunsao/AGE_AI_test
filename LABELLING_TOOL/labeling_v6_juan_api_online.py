@@ -167,18 +167,23 @@ def extract_folder_id(url):
 @st.cache_data
 def get_folder_and_file_ids(_service, parent_folder_name):
     try:
+        # Verifica si _service es una instancia válida
+        if not isinstance(_service, googleapiclient.discovery.Resource):
+            st.error("El servicio proporcionado no es válido.")
+            return None, None
+        
         # Encuentra la carpeta principal
         parent_folder_results = _service.files().list(
             q=f"name='{parent_folder_name}' and mimeType='application/vnd.google-apps.folder'",
             fields="files(id)"
         ).execute()
-        
+
         parent_folders = parent_folder_results.get('files', [])
         
         if not parent_folders:
             st.error(f"No se encontró la carpeta principal '{parent_folder_name}'.")
             return None, None
-        
+
         parent_folder_id = parent_folders[0]['id']
         
         # Busca la carpeta IMAGES y el archivo CSV en una sola consulta
@@ -186,27 +191,32 @@ def get_folder_and_file_ids(_service, parent_folder_name):
             q=f"'{parent_folder_id}' in parents and (name='IMAGES' or mimeType='text/csv')",
             fields="files(id, name, mimeType)"
         ).execute()
-        
+
         items = results.get('files', [])
         images_folder_id = None
         csv_file_id = None
-        
+
         for item in items:
             if item['name'] == 'IMAGES' and item['mimeType'] == 'application/vnd.google-apps.folder':
                 images_folder_id = item['id']
             elif item['mimeType'] == 'text/csv':
                 csv_file_id = item['id']
-        
+
         if not images_folder_id:
             st.error("No se encontró la carpeta 'IMAGES'.")
         if not csv_file_id:
             st.error("No se encontró el archivo CSV.")
-        
+
         return images_folder_id, csv_file_id
-    
+
+    except googleapiclient.errors.HttpError as e:
+        st.error(f"Error de API de Google: {str(e)}")
+        return None, None
+
     except Exception as e:
         st.error(f"Error al buscar la carpeta 'IMAGES' y el CSV: {str(e)}")
         return None, None
+
 
 
 @st.cache_data()
