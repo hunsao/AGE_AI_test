@@ -353,7 +353,6 @@ def main():
                             unsafe_allow_html=True
                         )
                         if st.button("Next Question", key="next_button"):
-                        if st.button("Next Question", key="next_button"):
                             if answer is not None:
                                 # Guardar la respuesta de la imagen actual antes de pasar a la siguiente pregunta
                                 current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
