@@ -106,6 +106,7 @@ def extract_folder_id(url):
         return match.group(1)
     return None
 
+@st.cache_data(ttl=3600)  # Cache por 1 hora
 def find_images_folder_and_csv_id(service, parent_folder_name):
     try:
         results = service.files().list(
