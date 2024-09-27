@@ -410,12 +410,12 @@ def main():
                     st.write(current_question['definition'])
 
                     # Debug information
-                    st.write(f"Debug: current_question = {current_question}")
-                    st.write(f"Debug: st.session_state.current_question = {st.session_state.current_question}")
+                    #st.write(f"Debug: current_question = {current_question}")
+                    #st.write(f"Debug: st.session_state.current_question = {st.session_state.current_question}")
 
                     # Use the existing response if available, otherwise default to None
                     default_answer = st.session_state.responses.get(current_question["question"])
-                    st.write(f"Debug: default_answer = {default_answer}")
+                    #st.write(f"Debug: default_answer = {default_answer}")
 
                     try:
                         if "options" in current_question and current_question["options"]:
