@@ -421,7 +421,7 @@ def main():
                             if default_answer is not None and default_answer in options:
                                 index = options.index(default_answer)
                             else:
-                                index = None
+                                index = 0#None
                             
                             answer = st.radio(
                                 "Select an option:", 
