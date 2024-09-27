@@ -339,28 +339,28 @@ def main():
                             st.rerun()
 
                     with col2:
-                    if st.button("Next Question", key="next_button"):
-                        if answer is not None:
-                            # Guardar la respuesta de la imagen actual antes de pasar a la siguiente pregunta
-                            current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
-                            if current_image_id not in st.session_state.image_responses:
-                                st.session_state.image_responses[current_image_id] = {}
-                            st.session_state.image_responses[current_image_id][current_question["question"]] = answer
-
-                            # Guardar la respuesta con identificador único para imagen y pregunta
-                            st.session_state.responses[f"{current_image_id}_{current_question['question']}"] = answer
-                            st.session_state.current_question += 1
-                            if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
-                                st.session_state.page = 'review'
-                                st.session_state.review_mode = True
+                        if st.button("Next Question", key="next_button"):
+                            if answer is not None:
+                                # Guardar la respuesta de la imagen actual antes de pasar a la siguiente pregunta
+                                current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
+                                if current_image_id not in st.session_state.image_responses:
+                                    st.session_state.image_responses[current_image_id] = {}
+                                st.session_state.image_responses[current_image_id][current_question["question"]] = answer
+    
+                                # Guardar la respuesta con identificador único para imagen y pregunta
+                                st.session_state.responses[f"{current_image_id}_{current_question['question']}"] = answer
+                                st.session_state.current_question += 1
+                                if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
+                                    st.session_state.page = 'review'
+                                    st.session_state.review_mode = True
+                                else:
+                                    # Seleccionar N nuevas imágenes aleatorias solo si se avanza a una nueva pregunta
+                                    st.session_state.random_images = random.sample(image_list, N_IMAGES_PER_QUESTION)
+                                    st.session_state.all_images.extend(st.session_state.random_images)  # Guardar todas las imágenes utilizadas
+                                    st.session_state.current_image_index = 0
+                                st.rerun()
                             else:
-                                # Seleccionar N nuevas imágenes aleatorias solo si se avanza a una nueva pregunta
-                                st.session_state.random_images = random.sample(image_list, N_IMAGES_PER_QUESTION)
-                                st.session_state.all_images.extend(st.session_state.random_images)  # Guardar todas las imágenes utilizadas
-                                st.session_state.current_image_index = 0
-                            st.rerun()
-                        else:
-                            st.warning("Please select an answer before proceeding.")
+                                st.warning("Please select an answer before proceeding.")
 
             elif st.session_state.page == 'review':
                 st.title("Cuestionario completado")
