@@ -343,14 +343,20 @@ def main():
     if 'review_mode' not in st.session_state:
         st.session_state.review_mode = False    
 
+    # Sidebar
     if parent_folder_id:
         images_folder_id, csv_file_id = find_images_folder_and_csv_id(drive_service, parent_folder_name)
         if images_folder_id and csv_file_id:
             image_list = list_images_in_folder(drive_service, images_folder_id)
 
+            # if 'current_image' not in st.session_state:
+            #     st.session_state.current_image = random.choice(image_list)
+
+            # Solo seleccionar y descargar la imagen si no ha sido seleccionada
             if 'current_image' not in st.session_state:
                 st.session_state.current_image = random.choice(image_list)
-
+                st.session_state.image_bytes = download_file_from_google_drive(drive_service, st.session_state.current_image['id'])
+            
             if st.session_state.page == 'start':
                 col1, col2, col3 = st.columns([1, 2, 1])
 
