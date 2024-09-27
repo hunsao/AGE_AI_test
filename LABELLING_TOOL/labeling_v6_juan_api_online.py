@@ -316,16 +316,18 @@ def main():
                         answer = None
 
                     # Botones de navegación y botón de siguiente pregunta
-                    col1, col2, col3 = st.columns([1, 2, 1])
+                    col1, col2, col3 = st.columns([1, 3, 1])
 
                     with col1:
                         if st.button("Previous image") and st.session_state.current_image_index > 0:
                             st.session_state.current_image_index -= 1
                             st.rerun()
 
+                    # with col2:
+                    #     st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
                     with col2:
-                        st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
-
+                        st.write("<div style='text-align: center;'>Current image: 1 de 2</div>", unsafe_allow_html=True)
+                    
                     with col3:
                         if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
                             # Guardar la respuesta actual antes de cambiar de imagen
@@ -339,6 +341,18 @@ def main():
                             st.rerun()
 
                     with col2:
+                        st.markdown(
+                            """
+                            <style>
+                            div.stButton > button {
+                                display: block;
+                                margin: 0 auto;
+                            }
+                            </style>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                        if st.button("Next Question", key="next_button"):
                         if st.button("Next Question", key="next_button"):
                             if answer is not None:
                                 # Guardar la respuesta de la imagen actual antes de pasar a la siguiente pregunta
