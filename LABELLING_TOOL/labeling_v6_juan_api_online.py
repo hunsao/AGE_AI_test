@@ -377,7 +377,9 @@ def main():
                     if st.session_state.user_id:
                         if st.button("Start Questionnaire"):
                             st.session_state.page = 'questionnaire'
-                            st.experimental_rerun()
+                            #st.experimental_rerun()
+                            st.rerun()
+
                     else:
                         st.warning("Please enter your user ID to start the questionnaire.")
 
