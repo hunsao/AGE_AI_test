@@ -167,151 +167,7 @@ questionnaire = {
     ]
 }
 
-# def main():
-#     st.set_page_config(layout="wide")
-
-#     drive_service, sheets_service = get_google_services()
-    
-#     if not drive_service or not sheets_service:
-#         st.error("No se pudieron obtener los servicios de Google.")
-#         return
-
-#     drive_url = "https://drive.google.com/drive/u/0/folders/1ii7UIuwg2zhoTNytADMIfW9QKRgg51Bs"
-#     parent_folder_name = "09_20_LABELLING_TEST"
-#     spreadsheet_id = "10HgyUYfkiS8LuXXRTTHcO9IzglwTXb6DU7Yu_m9z7yE"
-
-#     parent_folder_id = extract_folder_id(drive_url)
-
-#     if 'page' not in st.session_state:
-#         st.session_state.page = 'start'
-
-#     if 'current_question' not in st.session_state:
-#         st.session_state.current_question = 0
-#         st.session_state.responses = {}
-
-#     if 'responses' not in st.session_state:
-#             st.session_state.responses = {}
-
-#     if 'user_id' not in st.session_state:
-#         st.session_state.user_id = ''
-
-#     if 'review_mode' not in st.session_state:
-#         st.session_state.review_mode = False    
-
-#     # Sidebar
-#     #st.sidebar.title("Progress")
-
-#     if parent_folder_id:
-#         images_folder_id, csv_file_id = find_images_folder_and_csv_id(drive_service, parent_folder_name)
-#         if images_folder_id and csv_file_id:
-#             image_list = list_images_in_folder(drive_service, images_folder_id)
-
-#             if 'current_image' not in st.session_state:
-#                 st.session_state.current_image = random.choice(image_list)
-
-#             if st.session_state.page == 'start':
-#                 col1, col2, col3 = st.columns([1, 2, 1])  # Create 3 columns, middle one wider
-
-#                 with col2:  # Content will be centered in the middle column
-#                     st.markdown("<h1 style='text-align: center;'>Welcome to the AGEAI project questionary</h1>", unsafe_allow_html=True)
-#                     st.markdown("<p style='text-align: center;'>This tool is designed to help us collect data about images for AI training purposes.</p>", unsafe_allow_html=True)
-#                     st.markdown("<p style='text-align: center;'>You will be presented with a series of images and questions. Please answer them to the best of your ability.</p>", unsafe_allow_html=True)
-#                     st.markdown("<p style='text-align: center;'>Your responses are valuable and will contribute to improving or findings.</p>", unsafe_allow_html=True)
-                    
-#                     st.session_state.user_id = st.text_input('Enter your user ID', value=st.session_state.user_id)
-                    
-#                     if st.session_state.user_id:
-#                         if st.button("Start Questionnaire"):
-#                             st.session_state.page = 'questionnaire'
-#                             st.experimental_rerun()
-#                     else:
-#                         st.warning("Please enter your user ID to start the questionnaire.")
-
-#             elif st.session_state.page == 'questionnaire':
-#                 # Display progress in sidebar and enable navigation
-#                 for round_name, questions in questionnaire.items():
-#                     st.sidebar.subheader(round_name)
-#                     for i, q in enumerate(questions):
-#                         question_number = i + 1 if round_name == "ROUND 1" else len(questionnaire["ROUND 1"]) + i + 1
-#                         if st.session_state.review_mode or question_number <= st.session_state.current_question:
-#                             if st.sidebar.button(f"✅ {q['question'][:100]}...", key=f"nav_{round_name}_{i}"):
-#                                 st.session_state.current_question = question_number - 1
-#                                 st.rerun()
-#                         else:
-#                             st.sidebar.button(f"⬜ {q['question'][:100]}...", key=f"nav_{round_name}_{i}", disabled=True)
-
-#                 # Main content
-#                 col1, col2 = st.columns([2, 3])
-
-#                 with col1:
-#                     current_round = "ROUND 1" if st.session_state.current_question < len(questionnaire["ROUND 1"]) else "ROUND 2"
-#                     current_question = questionnaire[current_round][st.session_state.current_question % len(questionnaire[current_round])]
-
-#                     st.title(f"{current_round}")
-#                     # st.write(f"**Question:**\n{current_question['question']}")
-#                     # st.write(f"**Definition:** {current_question['definition']}")
-#                     st.write("### **Question:**")
-#                     st.write(current_question['question'])
-#                     st.write("### **Definition:**")
-#                     st.write(current_question['definition'])
-
-#                     # Use the existing response if available, otherwise default to None
-#                     default_answer = st.session_state.responses.get(current_question["question"])
-#                     answer = st.radio("Select an option:", current_question["options"], key=f"question_{st.session_state.current_question}", index=None if default_answer is None else current_question["options"].index(default_answer))
-
-#                     if st.button("Next Question", key="next_button"):
-#                         if answer is not None:
-#                             st.session_state.responses[current_question["question"]] = answer
-#                             st.session_state.current_question += 1
-#                             if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
-#                                 st.session_state.page = 'review'
-#                                 st.session_state.review_mode = True
-#                             else:
-#                                 st.session_state.current_image = random.choice(image_list)
-#                             st.rerun()
-#                         else:
-#                             st.warning("Please select an answer before proceeding.")
-
-#                 with col2:
-#                     image_bytes = download_file_from_google_drive(drive_service, st.session_state.current_image['id'])
-#                     st.image(image_bytes, use_column_width=True)
-
-#             elif st.session_state.page == 'review':
-#                 st.title("Cuestionario completado")
-#                 st.write("Has completado todas las preguntas. Puedes revisar tus respuestas o enviar el cuestionario.")
-
-#                 # Mostrar resumen de respuestas
-#                 #st.subheader("Resumen de respuestas:")
-#                 #for question, answer in st.session_state.responses.items():
-#                 #    st.write(f"**{question}**: {answer}")
-
-#                 if st.button("Revisar respuestas"):
-#                     st.session_state.current_question = 0
-#                     st.session_state.page = 'questionnaire'
-#                     st.session_state.review_mode = True
-#                     st.rerun()
-
-#                 if st.button("Enviar cuestionario"):
-#                     save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, st.session_state.current_image['name'], st.session_state.responses)
-#                     st.session_state.page = 'end'
-#                     st.session_state.review_mode = False
-#                     st.rerun()
-
-#             elif st.session_state.page == 'end':
-#                 st.title("Thanks for participating! 😊")
-#                 st.balloons()
-#                 st.write("Your responses have been saved and will be used to improve our AI systems.")
-#                 st.write("We appreciate your time and effort in completing this questionnaire.")
-#                 if st.button("Start New Questionnaire"):
-#                     st.session_state.current_question = 0
-#                     st.session_state.responses = {}
-#                     st.session_state.page = 'start'
-#                     st.session_state.user_id = ''
-#                     st.session_state.review_mode = False
-#                     st.rerun()
-
-#     else:
-#         st.error("No se pudo obtener el ID de la carpeta principal.")
+N_IMAGES_PER_QUESTION = 3  # Número de imágenes a mostrar por cada pregunta
 
 def main():
     st.set_page_config(layout="wide")
@@ -343,20 +199,23 @@ def main():
     if 'review_mode' not in st.session_state:
         st.session_state.review_mode = False    
 
+    # Si no se ha inicializado el índice de imagen actual o el conjunto de imágenes
+    if 'current_image_index' not in st.session_state:
+        st.session_state.current_image_index = 0
+
+    if 'random_images' not in st.session_state:
+        st.session_state.random_images = []
+
     # Sidebar
     if parent_folder_id:
         images_folder_id, csv_file_id = find_images_folder_and_csv_id(drive_service, parent_folder_name)
         if images_folder_id and csv_file_id:
             image_list = list_images_in_folder(drive_service, images_folder_id)
 
-            # if 'current_image' not in st.session_state:
-            #     st.session_state.current_image = random.choice(image_list)
+            # Solo seleccionar y descargar N imágenes aleatorias si no ha sido seleccionado antes
+            if not st.session_state.random_images:
+                st.session_state.random_images = random.sample(image_list, N_IMAGES_PER_QUESTION)
 
-            # Solo seleccionar y descargar la imagen si no ha sido seleccionada
-            if 'current_image' not in st.session_state:
-                st.session_state.current_image = random.choice(image_list)
-                st.session_state.image_bytes = download_file_from_google_drive(drive_service, st.session_state.current_image['id'])
-            
             if st.session_state.page == 'start':
                 col1, col2, col3 = st.columns([1, 2, 1])
 
@@ -371,14 +230,12 @@ def main():
                     if st.session_state.user_id:
                         if st.button("Start Questionnaire"):
                             st.session_state.page = 'questionnaire'
-                            #st.experimental_rerun()
                             st.rerun()
-
                     else:
                         st.warning("Please enter your user ID to start the questionnaire.")
 
             elif st.session_state.page == 'questionnaire':
-                # Display progress in sidebar and enable navigation
+                # Mostrar progreso en la barra lateral
                 for round_name, questions in questionnaire.items():
                     st.sidebar.subheader(round_name)
                     for i, q in enumerate(questions):
@@ -390,7 +247,7 @@ def main():
                         else:
                             st.sidebar.button(f"⬜ {q['question'][:100]}...", key=f"nav_{round_name}_{i}", disabled=True)
 
-                # Main content
+                # Contenido principal
                 col1, col2 = st.columns([2, 3])
 
                 with col1:
@@ -403,13 +260,8 @@ def main():
                     st.write("### **Definition:**")
                     st.write(current_question['definition'])
 
-                    # Debug information
-                    #st.write(f"Debug: current_question = {current_question}")
-                    #st.write(f"Debug: st.session_state.current_question = {st.session_state.current_question}")
-
-                    # Use the existing response if available, otherwise default to None
+                    # Mostrar la respuesta previa, si existe
                     default_answer = st.session_state.responses.get(current_question["question"])
-                    #st.write(f"Debug: default_answer = {default_answer}")
 
                     try:
                         if "options" in current_question and current_question["options"]:
@@ -417,7 +269,7 @@ def main():
                             if default_answer is not None and default_answer in options:
                                 index = options.index(default_answer)
                             else:
-                                index = 0#None
+                                index = 0
                             
                             answer = st.radio(
                                 "Select an option:", 
@@ -440,14 +292,34 @@ def main():
                                 st.session_state.page = 'review'
                                 st.session_state.review_mode = True
                             else:
-                                st.session_state.current_image = random.choice(image_list)
+                                # Seleccionar N nuevas imágenes aleatorias solo si se avanza a una nueva pregunta
+                                st.session_state.random_images = random.sample(image_list, N_IMAGES_PER_QUESTION)
+                                st.session_state.current_image_index = 0
                             st.rerun()
                         else:
                             st.warning("Please select an answer before proceeding.")
 
                 with col2:
-                    image_bytes = download_file_from_google_drive(drive_service, st.session_state.current_image['id'])
+                    # Mostrar la imagen actual almacenada en session_state
+                    current_image = st.session_state.random_images[st.session_state.current_image_index]
+                    image_bytes = download_file_from_google_drive(drive_service, current_image['id'])
                     st.image(image_bytes, use_column_width=True)
+
+                    # Mostrar los botones de navegación y progreso
+                    col1, col_mid, col3 = st.columns([1, 2, 1])
+
+                    with col1:
+                        if st.button("Previous image") and st.session_state.current_image_index > 0:
+                            st.session_state.current_image_index -= 1
+                            st.experimental_rerun()
+
+                    with col_mid:
+                        st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
+
+                    with col3:
+                        if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
+                            st.session_state.current_image_index += 1
+                            st.experimental_rerun()
 
             elif st.session_state.page == 'review':
                 st.title("Cuestionario completado")
@@ -460,15 +332,15 @@ def main():
                     st.rerun()
 
                 if st.button("Enviar cuestionario"):
-                    save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, st.session_state.current_image['name'], st.session_state.responses)
+                    save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, st.session_state.random_images[st.session_state.current_image_index]['name'], st.session_state.responses)
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
-
+                    
                     # Limpiar cache de datos y session_state relacionado con las imágenes
                     st.cache_data.clear()  # Limpiar caché después de enviar el cuestionario
-                    del st.session_state['current_image']
-                    del st.session_state['image_bytes']
-                    
+                    del st.session_state['random_images']
+                    del st.session_state['current_image_index']
+
                     st.rerun()
 
             elif st.session_state.page == 'end':
