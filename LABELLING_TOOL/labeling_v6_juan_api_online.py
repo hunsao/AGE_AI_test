@@ -308,7 +308,7 @@ def main():
                     with col1:
                         if st.button("Previous image") and st.session_state.current_image_index > 0:
                             st.session_state.current_image_index -= 1
-                            st.experimental_rerun()
+                            st.rerun()
 
                     with col2:
                         st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
@@ -323,7 +323,7 @@ def main():
                                 st.session_state.image_responses[current_image_id][current_question["question"]] = answer
                                 st.session_state.responses[f"{current_image_id}_{current_question['question']}"] = answer
                             st.session_state.current_image_index += 1
-                            st.experimental_rerun()
+                            st.rerun()
 
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
