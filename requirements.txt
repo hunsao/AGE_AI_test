@@ -6,3 +6,4 @@ google-auth-httplib2
 google-api-python-client
 tenacity
 streamlit==1.38.0
+urllib3==3.12.6
