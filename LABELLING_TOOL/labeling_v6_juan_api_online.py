@@ -167,7 +167,7 @@ questionnaire = {
     ]
 }
 
-N_IMAGES_PER_QUESTION = 3  # Número de imágenes a mostrar por cada pregunta
+N_IMAGES_PER_QUESTION = 10  # Número de imágenes a mostrar por cada pregunta
 
 def main():
     st.set_page_config(layout="wide")
@@ -205,6 +205,9 @@ def main():
 
     if 'random_images' not in st.session_state:
         st.session_state.random_images = []
+
+    if 'image_responses' not in st.session_state:
+        st.session_state.image_responses = {}
 
     # Sidebar
     if parent_folder_id:
@@ -250,6 +253,28 @@ def main():
                 # Contenido principal
                 col1, col2 = st.columns([2, 3])
 
+                with col2:
+                    # Mostrar la imagen actual almacenada en session_state
+                    current_image = st.session_state.random_images[st.session_state.current_image_index]
+                    image_bytes = download_file_from_google_drive(drive_service, current_image['id'])
+                    st.image(image_bytes, use_column_width=True)
+
+                    # Mostrar los botones de navegación y progreso
+                    col1, col_mid, col3 = st.columns([1, 2, 1])
+
+                    with col1:
+                        if st.button("Previous image") and st.session_state.current_image_index > 0:
+                            st.session_state.current_image_index -= 1
+                            st.rerun()
+
+                    with col_mid:
+                        st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
+
+                    with col3:
+                        if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
+                            st.session_state.current_image_index += 1
+                            st.rerun()
+
                 with col1:
                     current_round = "ROUND 1" if st.session_state.current_question < len(questionnaire["ROUND 1"]) else "ROUND 2"
                     current_question = questionnaire[current_round][st.session_state.current_question % len(questionnaire[current_round])]
@@ -286,7 +311,10 @@ def main():
 
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
-                            st.session_state.responses[current_question["question"]] = answer
+                            # Guardar la respuesta de la imagen actual
+                            current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
+                            st.session_state.image_responses[current_image_id] = answer
+
                             st.session_state.current_question += 1
                             if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
                                 st.session_state.page = 'review'
@@ -299,28 +327,6 @@ def main():
                         else:
                             st.warning("Please select an answer before proceeding.")
 
-                with col2:
-                    # Mostrar la imagen actual almacenada en session_state
-                    current_image = st.session_state.random_images[st.session_state.current_image_index]
-                    image_bytes = download_file_from_google_drive(drive_service, current_image['id'])
-                    st.image(image_bytes, use_column_width=True)
-
-                    # Mostrar los botones de navegación y progreso
-                    col1, col_mid, col3 = st.columns([1, 2, 1])
-
-                    with col1:
-                        if st.button("Previous image") and st.session_state.current_image_index > 0:
-                            st.session_state.current_image_index -= 1
-                            st.experimental_rerun()
-
-                    with col_mid:
-                        st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
-
-                    with col3:
-                        if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
-                            st.session_state.current_image_index += 1
-                            st.experimental_rerun()
-
             elif st.session_state.page == 'review':
                 st.title("Cuestionario completado")
                 st.write("Has completado todas las preguntas. Puedes revisar tus respuestas o enviar el cuestionario.")
@@ -332,7 +338,11 @@ def main():
                     st.rerun()
 
                 if st.button("Enviar cuestionario"):
-                    save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, st.session_state.random_images[st.session_state.current_image_index]['name'], st.session_state.responses)
+                    # Guardar las respuestas en Google Sheets
+                    for image_id, response in st.session_state.image_responses.items():
+                        # Aquí puedes ajustar según cómo desees guardar cada respuesta en Google Sheets
+                        save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, image_id, {'response': response})
+
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
                     
@@ -340,6 +350,7 @@ def main():
                     st.cache_data.clear()  # Limpiar caché después de enviar el cuestionario
                     del st.session_state['random_images']
                     del st.session_state['current_image_index']
+                    del st.session_state['image_responses']
 
                     st.rerun()
 
