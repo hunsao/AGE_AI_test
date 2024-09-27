@@ -278,6 +278,7 @@ def main():
                     st.write("### **Definition:**")
                     st.write(current_question['definition'])
 
+                    # Guardar respuesta para cada imagen y pregunta
                     default_answer = st.session_state.responses.get(f"{current_image['id']}_{current_question['question']}")
 
                     try:
@@ -307,19 +308,26 @@ def main():
                     with col1:
                         if st.button("Previous image") and st.session_state.current_image_index > 0:
                             st.session_state.current_image_index -= 1
-                            st.rerun()
+                            st.experimental_rerun()
 
                     with col2:
                         st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
 
                     with col3:
                         if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
+                            # Guardar la respuesta actual antes de cambiar de imagen
+                            if answer is not None:
+                                current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
+                                if current_image_id not in st.session_state.image_responses:
+                                    st.session_state.image_responses[current_image_id] = {}
+                                st.session_state.image_responses[current_image_id][current_question["question"]] = answer
+                                st.session_state.responses[f"{current_image_id}_{current_question['question']}"] = answer
                             st.session_state.current_image_index += 1
-                            st.rerun()
+                            st.experimental_rerun()
 
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
-                            # Guardar la respuesta de la imagen actual
+                            # Guardar la respuesta de la imagen actual antes de pasar a la siguiente pregunta
                             current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
                             if current_image_id not in st.session_state.image_responses:
                                 st.session_state.image_responses[current_image_id] = {}
@@ -386,6 +394,7 @@ def main():
 
     else:
         st.error("No se pudo obtener el ID de la carpeta principal.")
+
 
 
 if __name__ == "__main__":
