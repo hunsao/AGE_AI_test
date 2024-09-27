@@ -14,7 +14,6 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload, HttpRequest
 from googleapiclient.errors import HttpError
-from google.auth.transport.requests import Request
 
 #@st.cache_resource
 def get_google_services():
@@ -39,16 +38,9 @@ def get_google_services():
             ]
         )
 
-        # Crear el servicio utilizando un transporte personalizado
-        request = Request()
-
-        # Construir los servicios de Google
-        drive_service = build('drive', 'v3', credentials=credentials, requestBuilder=lambda: request)
-        sheets_service = build('sheets', 'v4', credentials=credentials, requestBuilder=lambda: request)
-
-        # # Construir los servicios
-        # drive_service = build('drive', 'v3', credentials=credentials)
-        # sheets_service = build('sheets', 'v4', credentials=credentials)
+        # Construir los servicios
+        drive_service = build('drive', 'v3', credentials=credentials)
+        sheets_service = build('sheets', 'v4', credentials=credentials)
 
         return drive_service, sheets_service
     except Exception as e:
