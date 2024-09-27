@@ -359,21 +359,39 @@ def main():
                     st.session_state.review_mode = True
                     st.rerun()
 
-                if st.button("Enviar cuestionario"):
-                    # Guardar las respuestas en Google Sheets
-                    for image_id, response in st.session_state.image_responses.items():
-                        # Aquí puedes ajustar según cómo desees guardar cada respuesta en Google Sheets
-                        save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, image_id, {'response': response})
+                # if st.button("Enviar cuestionario"):
+                #     # Guardar las respuestas en Google Sheets
+                #     for image_id, response in st.session_state.image_responses.items():
+                #         # Aquí puedes ajustar según cómo desees guardar cada respuesta en Google Sheets
+                #         save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, image_id, {'response': response})
 
+                #     st.session_state.page = 'end'
+                #     st.session_state.review_mode = False
+                    
+                #     # Limpiar cache de datos y session_state relacionado con las imágenes
+                #     st.cache_data.clear()  # Limpiar caché después de enviar el cuestionario
+                #     del st.session_state['random_images']
+                #     del st.session_state['current_image_index']
+                #     del st.session_state['image_responses']
+
+                #     st.rerun()
+
+            # Al enviar el cuestionario
+                if st.button("Enviar cuestionario"):
+                    save_labels_to_google_sheets(
+                        sheets_service, 
+                        spreadsheet_id, 
+                        st.session_state.user_id, 
+                        st.session_state.random_images[st.session_state.current_image_index]['name'],
+                        st.session_state.image_responses
+                    )
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
-                    
-                    # Limpiar cache de datos y session_state relacionado con las imágenes
-                    st.cache_data.clear()  # Limpiar caché después de enviar el cuestionario
+                    # Limpiar caché y session_state
+                    st.cache_data.clear()
                     del st.session_state['random_images']
                     del st.session_state['current_image_index']
                     del st.session_state['image_responses']
-
                     st.rerun()
 
             elif st.session_state.page == 'end':
