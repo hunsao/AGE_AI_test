@@ -245,9 +245,9 @@ def main():
 
                 with col2:
                     st.markdown("<h1 style='text-align: center;'>Welcome to the AGEAI project questionary</h1>", unsafe_allow_html=True)
-                    st.markdown("<p style='text-align: center;'>This tool is designed to help us collect data about images for AI training purposes.</p>", unsafe_allow_html=True)
+                    st.markdown("<p style='text-align: center;'>This tool is designed to help us collect data about images created with AI.</p>", unsafe_allow_html=True)
                     st.markdown("<p style='text-align: center;'>You will be presented with a series of images and questions. Please answer them to the best of your ability.</p>", unsafe_allow_html=True)
-                    st.markdown("<p style='text-align: center;'>Your responses are valuable and will contribute to improving our findings.</p>", unsafe_allow_html=True)
+                    st.markdown("<p style='text-align: center;'>Your responses are valuable and will contribute to the improving our findings.</p>", unsafe_allow_html=True)
                     
                     st.session_state.user_id = st.text_input('Enter your user ID', value=st.session_state.user_id)
                     
@@ -256,7 +256,7 @@ def main():
                             st.session_state.page = 'questionnaire'
                             st.rerun()
                     else:
-                        st.warning("Please enter your user ID to start the questionnaire.")
+                        st.warning("Please enter an user ID and click to start the questionnaire.")
 
             elif st.session_state.page == 'questionnaire':
                 # Mostrar progreso en la barra lateral
@@ -284,7 +284,8 @@ def main():
                     current_round = "ROUND 1" if st.session_state.current_question < len(questionnaire["ROUND 1"]) else "ROUND 2"
                     current_question = questionnaire[current_round][st.session_state.current_question % len(questionnaire[current_round])]
 
-                    st.title(f"{current_round}")
+                    #st.title(f"{current_round}")
+                    st.markdown(f"<h1 style='text-align: center; color: red;'>{current_round}</h1>")
                     st.write("### **Question:**")
                     st.write(current_question['question'])
                     st.write("### **Definition:**")
