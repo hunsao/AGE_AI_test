@@ -285,7 +285,7 @@ def main():
                     current_question = questionnaire[current_round][st.session_state.current_question % len(questionnaire[current_round])]
 
                     #st.title(f"{current_round}")
-                    st.markdown(f"<h1 style='text-align: center; color: red;'>{current_round}</h1>",unsafe_allow_html=True)
+                    #st.markdown(f"<h1 style='text-align: center; color: red;'>{current_round}</h1>",unsafe_allow_html=True)
                     st.write("### **Question:**")
                     st.write(current_question['question'])
                     st.write("### **Definition:**")
