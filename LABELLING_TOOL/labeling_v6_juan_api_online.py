@@ -199,7 +199,6 @@ def main():
     if 'review_mode' not in st.session_state:
         st.session_state.review_mode = False    
 
-    # Si no se ha inicializado el índice de imagen actual o el conjunto de imágenes
     if 'current_image_index' not in st.session_state:
         st.session_state.current_image_index = 0
 
@@ -215,7 +214,6 @@ def main():
         if images_folder_id and csv_file_id:
             image_list = list_images_in_folder(drive_service, images_folder_id)
 
-            # Solo seleccionar y descargar N imágenes aleatorias si no ha sido seleccionado antes
             if not st.session_state.random_images:
                 st.session_state.random_images = random.sample(image_list, N_IMAGES_PER_QUESTION)
 
@@ -259,22 +257,6 @@ def main():
                     image_bytes = download_file_from_google_drive(drive_service, current_image['id'])
                     st.image(image_bytes, use_column_width=True)
 
-                    # Mostrar los botones de navegación y progreso
-                    col1, col_mid, col3 = st.columns([1, 2, 1])
-
-                    with col1:
-                        if st.button("Previous image") and st.session_state.current_image_index > 0:
-                            st.session_state.current_image_index -= 1
-                            st.rerun()
-
-                    with col_mid:
-                        st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
-
-                    with col3:
-                        if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
-                            st.session_state.current_image_index += 1
-                            st.rerun()
-
                 with col1:
                     current_round = "ROUND 1" if st.session_state.current_question < len(questionnaire["ROUND 1"]) else "ROUND 2"
                     current_question = questionnaire[current_round][st.session_state.current_question % len(questionnaire[current_round])]
@@ -285,7 +267,6 @@ def main():
                     st.write("### **Definition:**")
                     st.write(current_question['definition'])
 
-                    # Mostrar la respuesta previa, si existe
                     default_answer = st.session_state.responses.get(current_question["question"])
 
                     try:
@@ -309,12 +290,29 @@ def main():
                         st.error(f"An error occurred: {str(e)}")
                         answer = None
 
+                    # Botones de navegación y botón de siguiente pregunta
+                    col1, col2, col3 = st.columns([1, 2, 1])
+
+                    with col1:
+                        if st.button("Previous image") and st.session_state.current_image_index > 0:
+                            st.session_state.current_image_index -= 1
+                            st.experimental_rerun()
+
+                    with col2:
+                        st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
+
+                    with col3:
+                        if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
+                            st.session_state.current_image_index += 1
+                            st.experimental_rerun()
+
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
                             # Guardar la respuesta de la imagen actual
                             current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
                             st.session_state.image_responses[current_image_id] = answer
 
+                            st.session_state.responses[current_question["question"]] = answer
                             st.session_state.current_question += 1
                             if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
                                 st.session_state.page = 'review'
