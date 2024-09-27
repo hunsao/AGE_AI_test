@@ -189,7 +189,7 @@ questionnaire = {
 N_IMAGES_PER_QUESTION = 2  # Número de imágenes a mostrar por cada pregunta
 
 def main():
-    st.set_page_config(layout="wide")
+    #st.set_page_config(layout="wide")
 
     drive_service, sheets_service = get_google_services()
     
