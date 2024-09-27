@@ -8,12 +8,13 @@ import re
 import random
 import json
 import base64
-import ssl
+#import ssl
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload, HttpRequest
 from googleapiclient.errors import HttpError
+from google.auth.transport.requests import Request
 
 #@st.cache_resource
 def get_google_services():
@@ -38,14 +39,13 @@ def get_google_services():
             ]
         )
 
-        # Crear contexto SSL seguro
-        ssl_context = ssl.create_default_context()
-        ssl_context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1  # Desactivar TLS 1.0 y 1.1
+        # Crear el servicio utilizando un transporte personalizado
+        request = Request()
 
-        # Construir los servicios
-        drive_service = build('drive', 'v3', credentials=credentials, requestBuilder=lambda *args, **kwargs: HttpRequest(*args, ssl_context=ssl_context))
-        sheets_service = build('sheets', 'v4', credentials=credentials, requestBuilder=lambda *args, **kwargs: HttpRequest(*args, ssl_context=ssl_context))
-        
+        # Construir los servicios de Google
+        drive_service = build('drive', 'v3', credentials=credentials, requestBuilder=lambda: request)
+        sheets_service = build('sheets', 'v4', credentials=credentials, requestBuilder=lambda: request)
+
         # # Construir los servicios
         # drive_service = build('drive', 'v3', credentials=credentials)
         # sheets_service = build('sheets', 'v4', credentials=credentials)
