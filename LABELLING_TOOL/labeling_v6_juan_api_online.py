@@ -8,54 +8,14 @@ import re
 import random
 import json
 import base64
+import ssl
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload, HttpRequest
 from googleapiclient.errors import HttpError
-from googleapiclient.http import HttpRequest
 
-# Define the questionnaire structure
-questionnaire = {
-    "ROUND 1": [
-        {
-            "question": "P1. Indicate the number of people you see in the image",
-            "options": ["0", "1", "2", "3", "+3", "Don't know"],
-            "definition": "People is some person than can clearly be identified as a real human. Do not count as a person completely blurry images in the background, or hallucinations (that frequently exist in AI generated images, as a person with 3 hands), or depicted images in a non photorealistic style (ex: cartoon)."
-        },
-        {
-            "question": "P2. Indicate if you are observing people from behind",
-            "options": ["Yes", "No", "Don't know"],
-            "definition": "From behind means that image shows people from the rear or the back side, rather than from the front or a more visible angle.\n- **Yes:** One person is showed from behind.\n- **No:** No person is showed from behind."
-        },
-        {
-            "question": "P3. Indicate the gender of the person you see in the image",
-            "options": ["Female", "Male", "Don't know"],
-            "definition": "Despite gender is social construct that 'varies from society to society and can change over time', we use here a simplification of the classification of gender due to the limitations of Computer Vision variables developed."
-        }
-    ],
-    "ROUND 2": [
-        {
-            "question": "P4. Are there assistive products?",
-            "options": ["Yes", "No", "Don't know"],
-            "definition": "Assistive products can range from physical products such as wheelchairs, glasses, prosthetic limbs, white canes, and hearing aids to digital solutions such as speech recognition or time management software and captioning"
-        }
-    ]
-}
-
-# def get_google_services():
-#     try:
-#         credentials = service_account.Credentials.from_service_account_file(
-#             SERVICE_ACCOUNT_FILE, scopes=SCOPES
-#         )
-#         drive_service = build('drive', 'v3', credentials=credentials)
-#         sheets_service = build('sheets', 'v4', credentials=credentials)
-#         return drive_service, sheets_service
-#     except Exception as e:
-#         st.error(f"Error al obtener los servicios de Google: {str(e)}")
-#         return None, None
-
-@st.cache_resource
+#@st.cache_resource
 def get_google_services():
     try:
         # Obtener la cadena codificada de la variable de entorno
@@ -78,9 +38,17 @@ def get_google_services():
             ]
         )
 
+        # Crear contexto SSL seguro
+        ssl_context = ssl.create_default_context()
+        ssl_context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1  # Desactivar TLS 1.0 y 1.1
+
         # Construir los servicios
-        drive_service = build('drive', 'v3', credentials=credentials)
-        sheets_service = build('sheets', 'v4', credentials=credentials)
+        drive_service = build('drive', 'v3', credentials=credentials, requestBuilder=lambda *args, **kwargs: HttpRequest(*args, ssl_context=ssl_context))
+        sheets_service = build('sheets', 'v4', credentials=credentials, requestBuilder=lambda *args, **kwargs: HttpRequest(*args, ssl_context=ssl_context))
+        
+        # # Construir los servicios
+        # drive_service = build('drive', 'v3', credentials=credentials)
+        # sheets_service = build('sheets', 'v4', credentials=credentials)
 
         return drive_service, sheets_service
     except Exception as e:
@@ -178,6 +146,34 @@ def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_
         st.sidebar.success(f'Respuestas guardadas para la imagen {image_name} en Google Sheets')
     except Exception as e:
         st.error(f"Error al guardar las etiquetas en Google Sheets: {str(e)}")
+
+# Define the questionnaire structure
+questionnaire = {
+    "ROUND 1": [
+        {
+            "question": "P1. Indicate the number of people you see in the image",
+            "options": ["0", "1", "2", "3", "+3", "Don't know"],
+            "definition": "People is some person than can clearly be identified as a real human. Do not count as a person completely blurry images in the background, or hallucinations (that frequently exist in AI generated images, as a person with 3 hands), or depicted images in a non photorealistic style (ex: cartoon)."
+        },
+        {
+            "question": "P2. Indicate if you are observing people from behind",
+            "options": ["Yes", "No", "Don't know"],
+            "definition": "From behind means that image shows people from the rear or the back side, rather than from the front or a more visible angle.\n- **Yes:** One person is showed from behind.\n- **No:** No person is showed from behind."
+        },
+        {
+            "question": "P3. Indicate the gender of the person you see in the image",
+            "options": ["Female", "Male", "Don't know"],
+            "definition": "Despite gender is social construct that 'varies from society to society and can change over time', we use here a simplification of the classification of gender due to the limitations of Computer Vision variables developed."
+        }
+    ],
+    "ROUND 2": [
+        {
+            "question": "P4. Are there assistive products?",
+            "options": ["Yes", "No", "Don't know"],
+            "definition": "Assistive products can range from physical products such as wheelchairs, glasses, prosthetic limbs, white canes, and hearing aids to digital solutions such as speech recognition or time management software and captioning"
+        }
+    ]
+}
 
 # def main():
 #     st.set_page_config(layout="wide")
