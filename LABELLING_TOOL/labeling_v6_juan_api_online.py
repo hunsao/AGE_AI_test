@@ -144,9 +144,15 @@ def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_
         current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # Crear una lista de valores para cada respuesta, incluyendo la pregunta
+        # values = []
+        # for question, response in responses.items():
+        #     values.append([user_id, image_name, current_datetime, question, response])
         values = []
-        for question, response in responses.items():
-            values.append([user_id, image_name, current_datetime, question, response])
+        for image_id, response in responses.items():
+            # Obtener el nombre de la imagen usando su ID
+            image_name = next((img['name'] for img in st.session_state.random_images if img['id'] == image_id), "Unknown Image")
+            for question, answer in response.items():
+                values.append([user_id, image_name, current_datetime, question, answer])
         
         body = {
             'values': values
@@ -320,7 +326,7 @@ def main():
                     with col1:
                         if st.button("Previous image") and st.session_state.current_image_index > 0:
                             st.session_state.current_image_index -= 1
-                            st.rerun()
+                            st.experimental_rerun()
 
                     with col2:
                         st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
@@ -328,15 +334,16 @@ def main():
                     with col3:
                         if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
                             st.session_state.current_image_index += 1
-                            st.rerun()
+                            st.experimental_rerun()
 
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
                             # Guardar la respuesta de la imagen actual
                             current_image_id = st.session_state.random_images[st.session_state.current_image_index]['id']
-                            st.session_state.image_responses[current_image_id] = answer
+                            if current_image_id not in st.session_state.image_responses:
+                                st.session_state.image_responses[current_image_id] = {}
+                            st.session_state.image_responses[current_image_id][current_question["question"]] = answer
 
-                            st.session_state.responses[current_question["question"]] = answer
                             st.session_state.current_question += 1
                             if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
                                 st.session_state.page = 'review'
@@ -359,39 +366,22 @@ def main():
                     st.session_state.review_mode = True
                     st.rerun()
 
-                # if st.button("Enviar cuestionario"):
-                #     # Guardar las respuestas en Google Sheets
-                #     for image_id, response in st.session_state.image_responses.items():
-                #         # Aquí puedes ajustar según cómo desees guardar cada respuesta en Google Sheets
-                #         save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, image_id, {'response': response})
-
-                #     st.session_state.page = 'end'
-                #     st.session_state.review_mode = False
-                    
-                #     # Limpiar cache de datos y session_state relacionado con las imágenes
-                #     st.cache_data.clear()  # Limpiar caché después de enviar el cuestionario
-                #     del st.session_state['random_images']
-                #     del st.session_state['current_image_index']
-                #     del st.session_state['image_responses']
-
-                #     st.rerun()
-
-            # Al enviar el cuestionario
                 if st.button("Enviar cuestionario"):
-                    save_labels_to_google_sheets(
-                        sheets_service, 
-                        spreadsheet_id, 
-                        st.session_state.user_id, 
-                        st.session_state.random_images[st.session_state.current_image_index]['name'],
-                        st.session_state.image_responses
-                    )
+                    # Guardar las respuestas en Google Sheets
+                    for image_id, responses in st.session_state.image_responses.items():
+                        image_name = next((img['name'] for img in st.session_state.random_images if img['id'] == image_id), "Unknown Image")
+                        for question, response in responses.items():
+                            save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, image_name, {question: response})
+
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
-                    # Limpiar caché y session_state
+                    
+                    # Limpiar caché y session_state relacionado con las imágenes
                     st.cache_data.clear()
                     del st.session_state['random_images']
                     del st.session_state['current_image_index']
                     del st.session_state['image_responses']
+
                     st.rerun()
 
             elif st.session_state.page == 'end':
