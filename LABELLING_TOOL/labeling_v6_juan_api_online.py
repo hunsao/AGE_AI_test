@@ -18,7 +18,7 @@ from googleapiclient.errors import HttpError
 st.set_page_config(
     page_title="AGEAI Questionnaire",
     page_icon="🧠",
-    layout="wide",
+    #layout="wide",
     initial_sidebar_state="collapsed"#,expanded
     #menu_items={
     #    'Get Help': 'https://www.extremelycoolapp.com/help',
