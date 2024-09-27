@@ -15,6 +15,18 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload, HttpRequest
 from googleapiclient.errors import HttpError
 
+st.set_page_config(
+    page_title="AGEAI Questionnaire",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="collapsed"#,expanded
+    #menu_items={
+    #    'Get Help': 'https://www.extremelycoolapp.com/help',
+    #    'Report a bug': "https://www.extremelycoolapp.com/bug",
+    #    'About': "# This is a header. This is an *extremely* cool app!"
+    #}
+)
+
 #@st.cache_resource
 def get_google_services():
     try:
