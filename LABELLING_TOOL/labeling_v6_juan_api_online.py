@@ -139,7 +139,7 @@ def download_and_cache_csv(_service, file_id):
 #     except Exception as e:
 #         st.error(f"Error al guardar las etiquetas en Google Sheets: {str(e)}")
 
-def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_name, responses):
+def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_name, image_responses):
     try:
         current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
@@ -149,7 +149,7 @@ def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_
         #     values.append([user_id, image_name, current_datetime, question, response])
         
         values = []
-        for image_id, response_dict in responses.items():
+        for image_id, response_dict in image_responses.items():
             # Obtener el nombre de la imagen usando su ID
             image_name = next((img['name'] for img in st.session_state.random_images if img['id'] == image_id), "Unknown Image")
             for question, answer in response_dict.items():
