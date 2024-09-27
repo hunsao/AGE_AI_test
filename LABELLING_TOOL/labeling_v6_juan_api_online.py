@@ -147,11 +147,12 @@ def save_labels_to_google_sheets(sheets_service, spreadsheet_id, user_id, image_
         # values = []
         # for question, response in responses.items():
         #     values.append([user_id, image_name, current_datetime, question, response])
+        
         values = []
-        for image_id, response in responses.items():
+        for image_id, response_dict in responses.items():
             # Obtener el nombre de la imagen usando su ID
             image_name = next((img['name'] for img in st.session_state.random_images if img['id'] == image_id), "Unknown Image")
-            for question, answer in response.items():
+            for question, answer in response_dict.items():
                 values.append([user_id, image_name, current_datetime, question, answer])
         
         body = {
@@ -326,7 +327,7 @@ def main():
                     with col1:
                         if st.button("Previous image") and st.session_state.current_image_index > 0:
                             st.session_state.current_image_index -= 1
-                            st.experimental_rerun()
+                            st.rerun()
 
                     with col2:
                         st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
@@ -334,7 +335,7 @@ def main():
                     with col3:
                         if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
                             st.session_state.current_image_index += 1
-                            st.experimental_rerun()
+                            st.rerun()
 
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
@@ -368,10 +369,12 @@ def main():
 
                 if st.button("Enviar cuestionario"):
                     # Guardar las respuestas en Google Sheets
-                    for image_id, responses in st.session_state.image_responses.items():
-                        image_name = next((img['name'] for img in st.session_state.random_images if img['id'] == image_id), "Unknown Image")
-                        for question, response in responses.items():
-                            save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, image_name, {question: response})
+                    save_labels_to_google_sheets(
+                        sheets_service, 
+                        spreadsheet_id, 
+                        st.session_state.user_id, 
+                        st.session_state.image_responses
+                    )
 
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
@@ -399,6 +402,7 @@ def main():
 
     else:
         st.error("No se pudo obtener el ID de la carpeta principal.")
+
 
 if __name__ == "__main__":
     main()
