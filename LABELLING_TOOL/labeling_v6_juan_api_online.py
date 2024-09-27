@@ -327,7 +327,7 @@ def main():
                     with col1:
                         if st.button("Previous image") and st.session_state.current_image_index > 0:
                             st.session_state.current_image_index -= 1
-                            st.rerun()
+                            st.experimental_rerun()
 
                     with col2:
                         st.write(f"Current image: {st.session_state.current_image_index + 1} de {N_IMAGES_PER_QUESTION}")
@@ -335,7 +335,7 @@ def main():
                     with col3:
                         if st.button("Next image") and st.session_state.current_image_index < N_IMAGES_PER_QUESTION - 1:
                             st.session_state.current_image_index += 1
-                            st.rerun()
+                            st.experimental_rerun()
 
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
@@ -345,6 +345,7 @@ def main():
                                 st.session_state.image_responses[current_image_id] = {}
                             st.session_state.image_responses[current_image_id][current_question["question"]] = answer
 
+                            st.session_state.responses[current_question["question"]] = answer
                             st.session_state.current_question += 1
                             if st.session_state.current_question >= len(questionnaire["ROUND 1"]) + len(questionnaire["ROUND 2"]):
                                 st.session_state.page = 'review'
@@ -402,6 +403,7 @@ def main():
 
     else:
         st.error("No se pudo obtener el ID de la carpeta principal.")
+
 
 
 if __name__ == "__main__":
