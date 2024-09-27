@@ -338,6 +338,7 @@ def main():
                             st.session_state.current_image_index += 1
                             st.rerun()
 
+                    with col2:
                     if st.button("Next Question", key="next_button"):
                         if answer is not None:
                             # Guardar la respuesta de la imagen actual antes de pasar a la siguiente pregunta
