@@ -463,6 +463,12 @@ def main():
                     save_labels_to_google_sheets(sheets_service, spreadsheet_id, st.session_state.user_id, st.session_state.current_image['name'], st.session_state.responses)
                     st.session_state.page = 'end'
                     st.session_state.review_mode = False
+
+                    # Limpiar cache de datos y session_state relacionado con las imágenes
+                    st.cache_data.clear()  # Limpiar caché después de enviar el cuestionario
+                    del st.session_state['current_image']
+                    del st.session_state['image_bytes']
+                    
                     st.rerun()
 
             elif st.session_state.page == 'end':
