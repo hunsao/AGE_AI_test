@@ -317,7 +317,7 @@ st.markdown("""
 
 Para que la aplicación funcione correctamente, el archivo ZIP debe contener:
 
-###📁 Estructura de Carpetas
+##📁 Estructura de Carpetas
 El ZIP debe tener la siguiente estructura:
 ```
 archivo.zip
