@@ -312,7 +312,7 @@ def get_unique_objects(df, column_name):
 #############################################################################################################################
 st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos. v29 30/08</h1>", unsafe_allow_html=True)
 st.markdown("""
-# 📦 Requisitos del Archivo ZIP
+### 📦 Requisitos del Archivo ZIP
 
 Para que la aplicación funcione correctamente, el archivo ZIP debe contener:
 
@@ -323,7 +323,7 @@ Para que la aplicación funcione correctamente, el archivo ZIP debe contener:
   - `filename_jpg`
   - `prompt`
 
-## 📁 Estructura de Carpetas
+### 📁 Estructura de Carpetas
 El ZIP debe tener la siguiente estructura:
 ```
 archivo.zip
@@ -334,12 +334,12 @@ archivo.zip
         └── [imágenes .jpg o .jpeg]
 ```
 
-## 🖼️ Imágenes
+### 🖼️ Imágenes
 - Deben estar en formato .jpg o .jpeg
 - Los nombres de archivo deben coincidir con los listados en la columna `filename_jpg` del CSV
 - Deben estar organizadas en las carpetas correspondientes (NEUTRAL u OLDER)
 
-## ⚠️ Notas Importantes
+#### ⚠️ Notas Importantes
 - Asegúrese de que todas las imágenes referenciadas en el CSV existan en las carpetas correspondientes
 - El CSV no debe tener valores nulos en las columnas obligatorias
 - La estructura de carpetas debe respetarse exactamente como se indica
