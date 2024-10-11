@@ -314,10 +314,10 @@ st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Me
 st.markdown("""
 <details>
 <summary>📋 Instrucciones para el archivo ZIP (click para expandir)</summary>
-📦 Requisitos del Archivo ZIP
+
 Para que la aplicación funcione correctamente, el archivo ZIP debe contener:
 
-📁 Estructura de Carpetas
+###📁 Estructura de Carpetas
 El ZIP debe tener la siguiente estructura:
 ```
 archivo.zip
@@ -330,12 +330,12 @@ archivo.zip
     
 ```
 
-🖼️ Imágenes
+###📁🖼️ Imágenes
 - Deben estar en formato .jpg o .jpeg
 - Los nombres de archivo deben coincidir con los listados en la columna `filename_jpg` del CSV
 - Deben estar organizadas en las carpetas correspondientes (NEUTRAL u OLDER)
 
-⚠️ Notas Importantes
+###📁⚠️ Notas Importantes
 - El CSV no debe tener valores nulos en las columnas obligatorias
 - La estructura de carpetas debe respetarse exactamente como se indica
 </details>
