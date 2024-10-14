@@ -320,12 +320,12 @@ st.markdown("""
 Para que la aplicación funcione correctamente, el archivo ZIP debe contener:
 
 <pre>
-archivo.zip
-├── data/
-│   ├── NEUTRAL/
-│   │   └── [imágenes .jpg o .jpeg]
-│   ├── OLDER/
-│   │   └── [imágenes .jpg o .jpeg]
+archivo.zip \\
+├── data/ \\
+│   ├── NEUTRAL/ \\
+│   │   └── [imágenes .jpg o .jpeg] \\
+│   ├── OLDER/ \\
+│   │   └── [imágenes .jpg o .jpeg] \\
 │   └── df_x.csv
 </pre>
 
@@ -345,6 +345,7 @@ archivo.zip
 </details>
 """, unsafe_allow_html=True)
 st.markdown(" ")
+
 # Inicializar categorías fuera del bloque if/else
 if 'categories' not in st.session_state:
     st.session_state.categories = {
