@@ -321,12 +321,12 @@ Para que la aplicación funcione correctamente, el archivo ZIP debe contener:
 
 <pre>
 archivo.zip
-└── data/
-    ├── NEUTRAL/
-    │   └── [imágenes .jpg o .jpeg]
-    └── OLDER/
-        └── [imágenes .jpg o .jpeg]
-    └── df_x.csv
+├── data/
+│   ├── NEUTRAL/
+│   │   └── [imágenes .jpg o .jpeg]
+│   ├── OLDER/
+│   │   └── [imágenes .jpg o .jpeg]
+│   └── df_x.csv
 </pre>
 
 <h3>📁🖼️ Imágenes</h3>
