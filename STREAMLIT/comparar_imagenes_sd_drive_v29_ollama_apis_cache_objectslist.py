@@ -314,22 +314,21 @@ st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Me
 
 st.markdown("""
 <details>
-<summary>📋 Instrucciones para el archivo ZIP (click para expandir)</summary>
+<summary>📋 Instrucciones para el archivo ZIP</summary>
 
+<h3>📁 Estructura de Carpetas</h3>
 Para que la aplicación funcione correctamente, el archivo ZIP debe contener:
 
-<h2>📁 Estructura de Carpetas</h2>
-El ZIP debe tener la siguiente estructura:
-
-<pre>
+```
 archivo.zip
 └── data/
     ├── NEUTRAL/
     │   └── [imágenes .jpg o .jpeg]
     └── OLDER/
         └── [imágenes .jpg o .jpeg]
-    └── df_x.csv
-</pre>
+    ├── df_x.csv
+
+``
 
 <h3>📁🖼️ Imágenes</h3>
 <ul>
@@ -346,7 +345,7 @@ archivo.zip
 
 </details>
 """, unsafe_allow_html=True)
-
+st.markdown(" ")
 # Inicializar categorías fuera del bloque if/else
 if 'categories' not in st.session_state:
     st.session_state.categories = {
