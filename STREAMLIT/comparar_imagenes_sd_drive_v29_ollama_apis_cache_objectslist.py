@@ -724,7 +724,7 @@ else:
 
                     if image_path:
                         cols[col_index].image(image_path, caption=image_name, use_column_width=True)
-                        if cols[col_index].button(f"Ver imagen completa", key=f"btn_{image_name}"):
+                        if cols[col_index].button(f"Ver imagen completa", key=f"btn_{image_name}_{row.name}"):
                             toggle_fullscreen(image_name)
                             st.rerun()
             st.markdown("<hr style='margin-top: 20px; margin-bottom: 20px;'>", unsafe_allow_html=True)
