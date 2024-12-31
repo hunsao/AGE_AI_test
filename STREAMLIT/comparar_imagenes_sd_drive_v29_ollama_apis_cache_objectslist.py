@@ -1,4 +1,4 @@
-#streamlit run c:/Users/David/Documents/AGEAI/Scripts/TEST/STREAMLIT/comparar_imagenes_sd_drive_v28_ollama.py
+#streamlit run c:/Users/David/Documents/AGEAI/Scripts/TEST/STREAMLIT/comparar_imagenes_sd_drive_v29_ollama.py
 import streamlit as st
 from zipfile import ZipFile
 import os
@@ -92,27 +92,7 @@ def create_downloadable_zip(filtered_df, images1, images2):
     finally:
         zip_buffer.seek(0)
     return zip_buffer
-
-# def get_drive_service():
-#     try:
-#         SERVICE_ACCOUNT_FILE = 'TEST/STREAMLIT/tranquil-hawk-429712-r9-ca222fe2b5cb.json'
-#         credentials = service_account.Credentials.from_service_account_file(
-#             SERVICE_ACCOUNT_FILE,
-#             scopes=['https://www.googleapis.com/auth/drive.readonly']
-#         )
-
-#         def custom_request(*args, **kwargs):
-#             request = HttpRequest(*args, **kwargs)
-#             request.timeout = 120  # Aumentar el tiempo de espera a 120 segundos
-#             return request
-
-#         service = build('drive', 'v3', credentials=credentials, requestBuilder=custom_request)
-#         return service
     
-#     except Exception as e:
-#         st.error(f"Error al obtener el servicio de Google Drive: {str(e)}")
-#         return None
-
 #@st.cache_data()
 @st.cache_resource
 def get_drive_service():
@@ -269,20 +249,6 @@ def get_unique_list_items(df_results, category):
     return []
 
 @st.cache_data()
-# def get_unique_objects(df, column_name):
-#     unique_objects = set()
-#     for objects_list in df[column_name].dropna():
-#         if isinstance(objects_list, list):
-#             unique_objects.update(objects_list)
-#         elif isinstance(objects_list, str):
-#             # Asumiendo que la cadena es una representación de lista
-#             try:
-#                 objects = eval(objects_list)
-#                 if isinstance(objects, list):
-#                     unique_objects.update(objects)
-#             except:
-#                 pass  # Ignorar si no se puede evaluar como lista
-#     return sorted(list(unique_objects))
 def get_unique_objects(df, column_name):
     unique_objects = {}  # Usar un diccionario para almacenar el conteo
     for objects_list in df[column_name].dropna():
@@ -361,96 +327,9 @@ st.markdown(" ")
 # Inicializar categorías fuera del bloque if/else
 if 'categories' not in st.session_state:
     st.session_state.categories = {
-        "shot": ["full shot", "close-up shot", "medium shot"],
+        #"shot": ["full shot", "close-up shot", "medium shot"],
         "gender": ["male", "female", "none"],
         "race": ["asian", "white", "black", "hispanic", "other"],
-        # "activities": [
-        #         "walking to the bathroom","in his or her room","climbing stairs","at the dining table","setting the table","selecting clothes","putting on clothes",
-        #         "doing laundry","taking a bath","brushing teeth","grooming","using a toilet","in the bathroom","cleaning the bathroom",
-        #         "planning commuting","booking a travel","commuting","shopping","paying bills","budgeting",
-        #         "planning shopping",
-        #         "preparing meals",
-        #         "storing groceries",
-        #         "dusting",
-        #         "organizing spaces",
-        #         "making phone calls",
-        #         "sending emails",
-        #         "writing a letter",
-        #         "managing medication",
-        #         "calling friends",
-        #         "talking",
-        #         "staying in touch",
-        #         "receiving friends",
-        #         "playing games",
-        #         "in a movie night",
-        #         "in a club meeting",
-        #         "attending a webinar",
-        #         "in a study group",
-        #         "praying",
-        #         "in the living room",
-        #         "taking care of plants",
-        #         "doing an exercise routine",
-        #         "meditating",
-        #         "writing",
-        #         "doing physical therapy",
-        #         "doing puzzles",
-        #         "taking courses",
-        #         "running home-based business",
-        #         "home monitoring",
-        #         "doing diet and nutrition planning",
-        #         "taking medications",
-        #         "using incontinence products",
-        #         "cleaning up spills",
-        #         "in a job fair",
-        #         "volunteering",
-        #         "at the hospital",
-        #         "at work",
-        #         "attending a support group",
-        #         "playing mental games",
-        #         "doing cognitive games",
-        #         "functional outdoor activities",
-        #         "landscaping",
-        #         "participating in community gardens",
-        #         "doing physical activity",
-        #         "playing a sport",
-        #         "in a family meeting",
-        #         "drinking coffee",
-        #         "dining out",
-        #         "participating in community events",
-        #         "in a conference",
-        #         "in a football match",
-        #         "attending religious services",
-        #         "visiting farmers markets",
-        #         "eating out",
-        #         "gardening",
-        #         "doing home repairs",
-        #         "taking out the trash",
-        #         "sending mail",
-        #         "meeting face to face",
-        #         "in a social gathering",
-        #         "buying medications",
-        #         "consulting the doctors",
-        #         "in medical examinations",
-        #         "visiting stores",
-        #         "checking bank accounts",
-        #         "withdrawing money",
-        #         "meeting financial advisors",
-        #         "using public transport",
-        #         "driving",
-        #         "changing incontinence products",
-        #         "attending a medical appointment",
-        #         "walking to a store",
-        #         "strolling in the neighborhood",
-        #         "walking in the metro",
-        #         "dining at a restaurant",
-        #         "shopping groceries",
-        #         "picnicking",
-        #         "shopping clothes",
-        #         "attending fittings",
-        #         "hanging laundry",
-        #         "in a hair salon",
-        #         "using a restroom",
-        #         "buying personal care products"],
         "activities": [
             "sleeping",
             "being sick in bed",
@@ -613,26 +492,56 @@ if not st.session_state.data_loaded:
                     csv_file_path = os.path.join(data_folder, csv_files[0])
                     st.session_state.df_results = pd.read_csv(csv_file_path)
                 
-                if st.session_state.df_results is not None:
-                    st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
+        #         if st.session_state.df_results is not None:
+        #             st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
                     
-                    new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
-                                      "objects", "objects_assist_devices", "objects_digi_devices"] 
-                    for category in new_categories:
-                        st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
+        #             new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
+        #                               "objects", "objects_assist_devices", "objects_digi_devices"] 
+        #             for category in new_categories:
+        #                 st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
                     
-                    st.session_state.data_loaded = True
-                    st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
-                    st.rerun()
-                else:
-                    st.error("No se pudo cargar el DataFrame.")
+        #             st.session_state.data_loaded = True
+        #             st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
+        #             st.rerun()
+        #         else:
+        #             st.error("No se pudo cargar el DataFrame.")
         
-        # Limpiar archivos temporales
-        if os.path.exists(temp_zip_path):
-            os.remove(temp_zip_path)
-        if os.path.exists(temp_extract_path):
-            shutil.rmtree(temp_extract_path, ignore_errors=True)
+        # # Limpiar archivos temporales
+        # if os.path.exists(temp_zip_path):
+        #     os.remove(temp_zip_path)
+        # if os.path.exists(temp_extract_path):
+        #     shutil.rmtree(temp_extract_path, ignore_errors=True)
 
+                    if st.session_state.df_results is not None:
+                        st.write("Columnas del DataFrame:", st.session_state.df_results.columns.tolist()) # Imprimir columnas
+                        
+                        required_columns = ['ID', 'filename', 'prompt']
+                        missing_columns = [col for col in required_columns if col not in st.session_state.df_results.columns]
+                        if missing_columns:
+                            st.error(f"Las siguientes columnas no se encontraron en el DataFrame: {', '.join(missing_columns)}")
+                            st.stop()
+                        
+                        # Renombrar la columna 'filename' a 'filename_jpg'
+                        st.session_state.df_results = st.session_state.df_results.rename(columns={'filename': 'filename_jpg'})
+                        
+                        st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
+                        
+                        new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
+                                          "objects", "objects_assist_devices", "objects_digi_devices"] 
+                        for category in new_categories:
+                            st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
+                        
+                        st.session_state.data_loaded = True
+                        st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
+                        st.rerun()
+                    else:
+                        st.error("No se pudo cargar el DataFrame.")
+            
+            # Limpiar archivos temporales
+            if os.path.exists(temp_zip_path):
+                os.remove(temp_zip_path)
+            if os.path.exists(temp_extract_path):
+                shutil.rmtree(temp_extract_path, ignore_errors=True)
 
 # Parte 2: Mostrar el dashboard
 else:
@@ -725,21 +634,6 @@ else:
         key="multiselect_digi_devices_list"
     )
     
-    # Aplicar filtros de objetos
-    # if selected_objects:
-    #     filtered_df = filtered_df[filtered_df['objects'].apply(
-    #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_objects)
-    #     )]
-    
-    # if selected_assist_devices:
-    #     filtered_df = filtered_df[filtered_df['objects_assist_devices'].apply(
-    #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_assist_devices)
-    #     )]
-    
-    # if selected_digi_devices:
-    #     filtered_df = filtered_df[filtered_df['objects_digi_devices'].apply(
-    #         lambda x: any(item in eval(x) if isinstance(x, str) else x for item in selected_digi_devices)
-    #     )]
     if selected_objects:
         filtered_df_objects = filtered_df.copy()  # Crear una copia para el filtro de objetos
         for obj_with_count in selected_objects:
@@ -767,7 +661,6 @@ else:
             filtered_df_digi['objects_digi_devices'] = filtered_df_digi['objects_digi_devices'].apply(eval)
         filtered_df = filtered_df_digi  # Actualizar el DataFrame principal con el resultado del filtro de digi_devices
 
-# ... (resto del código) ...
 ######################################################
     st.sidebar.header("Buscador de Variables")
     search_columns = df_results.columns.tolist()
