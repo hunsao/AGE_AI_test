@@ -549,28 +549,52 @@ else:
                 st.session_state[key] = []
         st.rerun()
 
+    # for category, options in categories.items():
+    #     selected = st.sidebar.multiselect(
+    #         f"Seleccionar {category.replace('_', ' ').title()}",
+    #         get_sorted_options(df_results, category, options),
+    #         default=get_default(category),
+    #         key=f"multiselect_{category}"
+    #     )
+
+        ## if selected_options:
+        ##     if category in ["activities"]:
+        ##         filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
+        ##     else:
+        ##         filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
+    
+        # if selected_options:
+        #      # Convertir tanto la columna del DataFrame como las opciones seleccionadas a tipo str
+        #     filtered_df = filtered_df[filtered_df[category].astype(str).isin(selected_options)]
+        #     if category in ["activities"]:
+        #         filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
+    
     for category, options in categories.items():
+        if category == "activities":
+            continue  # Skip activities, handled separately
         selected = st.sidebar.multiselect(
             f"Seleccionar {category.replace('_', ' ').title()}",
             get_sorted_options(df_results, category, options),
             default=get_default(category),
             key=f"multiselect_{category}"
         )
-        
+
         selected_options = [option.split(" (")[0] for option in selected]
-        
-        # if selected_options:
-        #     if category in ["activities"]:
-        #         filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
-        #     else:
-        #         filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
-    
+
         if selected_options:
-             # Convertir tanto la columna del DataFrame como las opciones seleccionadas a tipo str
+            # Convertir tanto la columna del DataFrame como las opciones seleccionadas a tipo str
             filtered_df = filtered_df[filtered_df[category].astype(str).isin(selected_options)]
-            if category in ["activities"]:
-                filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
-    
+
+    # Separately handle the 'activities' filter
+    selected_activities = st.sidebar.multiselect(
+        f"Seleccionar Activities",
+        get_sorted_options(df_results, 'activities', categories['activities']),
+        default=get_default("activities"),
+        key=f"multiselect_activities"
+    )
+    selected_activities_options = [option.split(" (")[0] for option in selected_activities]
+    if selected_activities_options:
+        filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_activities_options))]
         # Filtro de Objetos
     unique_objects = get_unique_objects(df_results, "objects")
     unique_assist_devices = get_unique_objects(df_results, "objects_assist_devices")
