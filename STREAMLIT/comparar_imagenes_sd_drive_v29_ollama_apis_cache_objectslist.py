@@ -309,7 +309,7 @@ if 'categories' not in st.session_state:
         #"shot": ["full shot", "close-up shot", "medium shot"],
         "gender": ["male", "female", "not identified"],
         "race": ["asian", "white", "black", "hispanic", "other"],
-        activities = [
+        "activities" : [
             "sleeping",
             "being sick in bed",
             "eating",
