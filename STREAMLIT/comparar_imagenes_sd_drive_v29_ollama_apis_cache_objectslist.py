@@ -402,7 +402,7 @@ if 'categories' not in st.session_state:
             "going to study locations",
             "going to shops and services",
             "traveling for family care",
-            "moving to a new location"]
+            "moving to a new location"],
         "emotions_short": ["neutral", "positive", "negative"],
         #"personality_short": ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"],
         "personality_short": ["Openness", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"],
