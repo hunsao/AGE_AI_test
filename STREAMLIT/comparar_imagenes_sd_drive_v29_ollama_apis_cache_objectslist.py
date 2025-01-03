@@ -255,7 +255,7 @@ def get_unique_objects(df, column_name):
     return sorted_objects  
 
 #############################################################################################################################
-st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos. v30 14/10</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos. v31 3.1.25</h1>", unsafe_allow_html=True)
 
 st.markdown("""
 <details>
@@ -424,7 +424,7 @@ if not st.session_state.data_loaded:
 
     folder_url = st.text_input(
         "Ingrese el enlace de la carpeta de Google Drive:",
-        value="https://drive.google.com/drive/u/0/folders/1j9r4MWwdP8utL6pF5vHYnCYKWlZwwboi"
+        value=""
     )
 
     folder_id = extract_folder_id(folder_url)
