@@ -554,20 +554,17 @@ else:
         
         selected_options = [option.split(" (")[0] for option in selected]
         
+        # if selected_options:
+        #     if category in ["activities"]:
+        #         filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
+        #     else:
+        #         filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
+    
         if selected_options:
-            # if category == "person_count":
-            #     filtered_df = filtered_df[filtered_df[category].notna()]  # Eliminar valores NaN
-            #     filtered_df = filtered_df[filtered_df[category].astype(str).isin(selected_options)]
-            if category == "person_count":
-                st.write("Valores únicos en `person_count` antes del filtro:")
-                st.write(filtered_df[category].unique())  # Mostrar los valores únicos de la columna
-                
-                st.write("Opciones seleccionadas para filtrar:")
-                st.write(selected_options)  # Mostrar las opciones seleccionadas
+             # Convertir tanto la columna del DataFrame como las opciones seleccionadas a tipo str
+            filtered_df = filtered_df[filtered_df[category].astype(str).isin(selected_options)]
             if category in ["activities"]:
                 filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
-            else:
-                filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
     
         # Filtro de Objetos
     unique_objects = get_unique_objects(df_results, "objects")
