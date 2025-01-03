@@ -405,7 +405,7 @@ if 'categories' not in st.session_state:
             "moving to a new location"],
         "emotions_short": ["neutral", "positive", "negative"],
         #"personality_short": ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"],
-        "personality_short": ["Openness", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"],
+        "personality_short": [item.lower() for item in ["Openness", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"]],
         "position_short": [],
         "person_count": ["1", "2", "3", "4"],
         "location": ["indoors", "outdoors", "not identified"]
