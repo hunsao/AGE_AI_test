@@ -556,7 +556,7 @@ else:
         
         if selected_options:
             if category == "person_count":
-            # Convertir columna y opciones seleccionadas a tipo str para garantizar coincidencia
+                filtered_df = filtered_df[filtered_df[category].notna()]  # Eliminar valores NaN
                 filtered_df = filtered_df[filtered_df[category].astype(str).isin(selected_options)]
             if category in ["activities"]:
                 filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
