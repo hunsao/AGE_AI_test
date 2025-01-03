@@ -486,6 +486,11 @@ if not st.session_state.data_loaded:
                         
                         new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
                                           "objects", "objects_assist_devices", "objects_digi_devices"] 
+
+                        #Convertir a minuscula personality_short
+                        if 'personality_short' in st.session_state.df_results.columns:
+                            st.session_state.df_results['personality_short'] = st.session_state.df_results['personality_short'].str.lower()
+                        
                         for category in new_categories:
                             st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
                         
