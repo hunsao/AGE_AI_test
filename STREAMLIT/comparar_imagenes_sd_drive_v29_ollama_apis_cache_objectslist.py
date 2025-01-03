@@ -1,4 +1,3 @@
-#streamlit run c:/Users/David/Documents/AGEAI/Scripts/TEST/STREAMLIT/comparar_imagenes_sd_drive_v29_ollama.py
 import streamlit as st
 from zipfile import ZipFile
 import os
@@ -32,8 +31,8 @@ if 'data_loaded' not in st.session_state:
     st.session_state.df_results = None
     st.session_state.images1 = None
     st.session_state.images2 = None
-    st.session_state.group_filter = "Todos"  # Valor por defecto para el filtro de grupo
-    st.session_state.search_term = ""  # Valor por defecto para el término de búsqueda
+    st.session_state.group_filter = "Todos"  
+    st.session_state.search_term = ""  
 
 @st.cache_data()
 def count_observations(df, category, options):
@@ -93,36 +92,28 @@ def create_downloadable_zip(filtered_df, images1, images2):
         zip_buffer.seek(0)
     return zip_buffer
     
-#@st.cache_data()
 @st.cache_resource
 def get_drive_service():
     try:
-        # Obtener la cadena codificada de la variable de entorno
         encoded_sa = os.getenv('GOOGLE_SERVICE_ACCOUNT')
         if not encoded_sa:
             raise ValueError("La variable de entorno GOOGLE_SERVICE_ACCOUNT no está configurada")
 
-        # Decodificar la cadena
         sa_json = base64.b64decode(encoded_sa).decode('utf-8')
 
-        # Crear un diccionario a partir de la cadena JSON
         sa_dict = json.loads(sa_json)
 
-        # Crear las credenciales
         credentials = service_account.Credentials.from_service_account_info(
             sa_dict,
             scopes=['https://www.googleapis.com/auth/drive.readonly']
         )
 
-        # Construir el servicio
         service = build('drive', 'v3', credentials=credentials)
         return service
     except Exception as e:
         st.error(f"Error al obtener el servicio de Google Drive: {str(e)}")
         return None
 
-#@st.cache_data()
-#@st.cache_data(ttl=3600)  # Cache for 1 hour
 def list_files_in_folder(service, folder_id, retries=3):
     for attempt in range(retries):
         try:
@@ -134,16 +125,15 @@ def list_files_in_folder(service, folder_id, retries=3):
         except HttpError as error:
             st.error(f"Error al listar archivos (intento {attempt+1}): {error}")
             if attempt < retries - 1:
-                time.sleep(5)  # Espera antes de reintentar
+                time.sleep(5)  
             else:
                 raise
             
 class RequestWithTimeout(Request):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.timeout = 120  # Ajusta el tiempo de espera aquí (en segundos)
+        self.timeout = 120  
 
-# Función para descargar archivo desde Google Drive
 def download_file_from_google_drive(service, file_id, dest_path, retries=3):
     for attempt in range(retries):
         try:
@@ -157,23 +147,19 @@ def download_file_from_google_drive(service, file_id, dest_path, retries=3):
                 #st.write(f'Download {int(status.progress() * 100)}%')
             
             fh.close()
-            #st.success(f"Archivo descargado correctamente: {dest_path}")
             st.success(f"Archivo descargado correctamente")
             return
         except Exception as e:
             st.error(f"Error al descargar el archivo (intento {attempt+1}): {str(e)}")
             if attempt < retries - 1:
-                time.sleep(5)  # Espera antes de reintentar
+                time.sleep(5)  
             else:
                 raise
 
-# Función para extraer el ZIP
 def extract_zip(zip_path, extract_to):
     try:
         with ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(extract_to)
-        #st.success(f"Archivo ZIP extraído correctamente en: {extract_to}")
-        #st.write(f"Contenido de {extract_to}:")
         st.write(os.listdir(extract_to))
     except Exception as e:
         st.error(f"Error al extraer el archivo ZIP: {str(e)}")
@@ -192,14 +178,11 @@ def show_image_details(image_data):
     for key, value in image_data.items():
         st.write(f"**{key}:** {value}")
 
-# Function to read images from a folder and sort them naturally
-#@st.cache_data()
 @st.cache_data(persist="disk")
 def read_images_from_folder(folder_path):
     images = {}
     filenames = sorted(os.listdir(folder_path), key=natural_sort_key)
     for filename in filenames:
-        #if filename.endswith(".jpg"):
         if filename.lower().endswith((".jpg", ".jpeg")):
             image_path = os.path.join(folder_path, filename)
             images[filename] = image_path
@@ -209,7 +192,6 @@ def read_images_from_folder(folder_path):
 def natural_sort_key(s):
     return [int(text) if text.isdigit() else text.lower() for text in re.split('([0-9]+)', s)]
 
-#@st.cache_data(max_entries=1)
 @st.cache_data(persist="disk")
 def read_dataframe_from_zip(zip_path):
     with ZipFile(zip_path, 'r') as zip_ref:
@@ -232,7 +214,6 @@ def get_default(category):
 if 'fullscreen_image' not in st.session_state:
     st.session_state.fullscreen_image = None
 
-#st.cache_data()
 @st.cache_data(persist="disk")
 def get_unique_list_items(df_results, category):
     if category in df_results.columns:
@@ -270,10 +251,8 @@ def get_unique_objects(df, column_name):
             except:
                 pass
 
-    # Ordenar el diccionario por valor (conteo) en orden descendente
     sorted_objects = dict(sorted(unique_objects.items(), key=lambda item: item[1], reverse=True))
-
-    return sorted_objects  # Devolver el diccionario ordenado
+    return sorted_objects  
 
 #############################################################################################################################
 st.markdown("<h1 style='text-align: center; color: white;'>AGEAI: Imágenes y Metadatos. v30 14/10</h1>", unsafe_allow_html=True)
@@ -433,7 +412,6 @@ if 'categories' not in st.session_state:
     }
     
 if not st.session_state.data_loaded:
-    # Conexión con Google Drive
     service = get_drive_service()
     if service is None:
         st.error("No se pudo establecer la conexión con Google Drive.")
@@ -492,26 +470,6 @@ if not st.session_state.data_loaded:
                 if csv_files:
                     csv_file_path = os.path.join(data_folder, csv_files[0])
                     st.session_state.df_results = pd.read_csv(csv_file_path)
-                
-        #         if st.session_state.df_results is not None:
-        #             st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
-                    
-        #             new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
-        #                               "objects", "objects_assist_devices", "objects_digi_devices"] 
-        #             for category in new_categories:
-        #                 st.session_state.categories[category] = get_unique_list_items(st.session_state.df_results, category)
-                    
-        #             st.session_state.data_loaded = True
-        #             st.success("Datos cargados correctamente. La página se actualizará automáticamente.")
-        #             st.rerun()
-        #         else:
-        #             st.error("No se pudo cargar el DataFrame.")
-        
-        # # Limpiar archivos temporales
-        # if os.path.exists(temp_zip_path):
-        #     os.remove(temp_zip_path)
-        # if os.path.exists(temp_extract_path):
-        #     shutil.rmtree(temp_extract_path, ignore_errors=True)
 
                     if st.session_state.df_results is not None:
                         st.write("Columnas del DataFrame:", st.session_state.df_results.columns.tolist()) # Imprimir columnas
@@ -522,7 +480,6 @@ if not st.session_state.data_loaded:
                             st.error(f"Las siguientes columnas no se encontraron en el DataFrame: {', '.join(missing_columns)}")
                             st.stop()
                         
-                        # Renombrar la columna 'filename' a 'filename_jpg'
                         st.session_state.df_results = st.session_state.df_results.rename(columns={'filename': 'filename_jpg'})
                         
                         st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
@@ -538,13 +495,12 @@ if not st.session_state.data_loaded:
                     else:
                         st.error("No se pudo cargar el DataFrame.")
             
-            # Limpiar archivos temporales
             if os.path.exists(temp_zip_path):
                 os.remove(temp_zip_path)
             if os.path.exists(temp_extract_path):
                 shutil.rmtree(temp_extract_path, ignore_errors=True)
 
-# Parte 2: Mostrar el dashboard
+# Parte 2: dashboard
 else:
     df_results = st.session_state.df_results
     images1 = st.session_state.images1
@@ -562,13 +518,12 @@ else:
     elif group_filter == "OLDER":
         filtered_df = df_results[df_results['age_group'] == 'older']
 
-    # Usar las categorías almacenadas en la sesión
     categories = st.session_state.categories
 
     if 'reset_filters' not in st.session_state:
         st.session_state.reset_filters = False
 
-    # Filtro de Age Range (aplicado antes de los demás filtros)
+    # Filtro de Age Range 
     age_ranges = sorted(df_results['age_range'].unique().tolist())
     selected_age_ranges = st.sidebar.multiselect(
         "Seleccionar Age Range",
@@ -600,13 +555,13 @@ else:
         selected_options = [option.split(" (")[0] for option in selected]
         
         if selected_options:
+            if category == "person_count":
+            # Convertir columna y opciones seleccionadas a tipo str para garantizar coincidencia
+                filtered_df = filtered_df[filtered_df[category].astype(str).isin(selected_options)]
             if category in ["activities"]:
                 filtered_df = filtered_df[filtered_df['prompt'].apply(lambda x: any(item.lower() in x.lower() for item in selected_options))]
             else:
                 filtered_df = filtered_df[filtered_df[category].isin(selected_options)]
-    
-    #if st.session_state.reset_filters:
-    #st.session_state.reset_filters = False
     
         # Filtro de Objetos
     unique_objects = get_unique_objects(df_results, "objects")
@@ -616,51 +571,48 @@ else:
     # Crear selectores para cada categoría de objetos
     selected_objects = st.sidebar.multiselect(
         "Seleccionar Objetos (SIN LISTA)",
-        #unique_objects,
-        [f"{obj} ({count})" for obj, count in unique_objects.items()], # Formatear las opciones
+        [f"{obj} ({count})" for obj, count in unique_objects.items()],
         key="multiselect_objects_list"
     )
     
     selected_assist_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Assist Devices (SIN LISTA)",
-        #unique_assist_devices,
         [f"{obj} ({count})" for obj, count in unique_assist_devices.items()],
         key="multiselect_assist_devices_list"
     )
     
     selected_digi_devices = st.sidebar.multiselect(
         "Seleccionar Objetos Digi Devices (SIN LISTA)",
-        #unique_digi_devices,
         [f"{obj} ({count})" for obj, count in unique_digi_devices.items()],
         key="multiselect_digi_devices_list"
     )
     
     if selected_objects:
-        filtered_df_objects = filtered_df.copy()  # Crear una copia para el filtro de objetos
+        filtered_df_objects = filtered_df.copy() 
         for obj_with_count in selected_objects:
             obj = obj_with_count.split(" (")[0]
             filtered_df_objects['objects'] = filtered_df_objects['objects'].astype(str)
             filtered_df_objects = filtered_df_objects[filtered_df_objects['objects'].str.contains(obj)]
             filtered_df_objects['objects'] = filtered_df_objects['objects'].apply(eval)
-        filtered_df = filtered_df_objects  # Actualizar el DataFrame principal con el resultado del filtro de objetos
+        filtered_df = filtered_df_objects 
     
     if selected_assist_devices:
-        filtered_df_assist = filtered_df.copy()  # Crear una copia para el filtro de assist_devices
+        filtered_df_assist = filtered_df.copy()  
         for obj_with_count in selected_assist_devices:
             obj = obj_with_count.split(" (")[0]
             filtered_df_assist['objects_assist_devices'] = filtered_df_assist['objects_assist_devices'].astype(str)
             filtered_df_assist = filtered_df_assist[filtered_df_assist['objects_assist_devices'].str.contains(obj)]
             filtered_df_assist['objects_assist_devices'] = filtered_df_assist['objects_assist_devices'].apply(eval)
-        filtered_df = filtered_df_assist  # Actualizar el DataFrame principal con el resultado del filtro de assist_devices
+        filtered_df = filtered_df_assist  
     
     if selected_digi_devices:
-        filtered_df_digi = filtered_df.copy()  # Crear una copia para el filtro de digi_devices
+        filtered_df_digi = filtered_df.copy()  
         for obj_with_count in selected_digi_devices:
             obj = obj_with_count.split(" (")[0]
             filtered_df_digi['objects_digi_devices'] = filtered_df_digi['objects_digi_devices'].astype(str)
             filtered_df_digi = filtered_df_digi[filtered_df_digi['objects_digi_devices'].str.contains(obj)]
             filtered_df_digi['objects_digi_devices'] = filtered_df_digi['objects_digi_devices'].apply(eval)
-        filtered_df = filtered_df_digi  # Actualizar el DataFrame principal con el resultado del filtro de digi_devices
+        filtered_df = filtered_df_digi  
 
 ######################################################
     st.sidebar.header("Buscador de Variables")
@@ -670,11 +622,10 @@ else:
     # Aplicar búsqueda
     search_term = st.sidebar.text_input(f"Buscar en {selected_column}", value=st.session_state.search_term)
     st.session_state.search_term = search_term  # Actualizar el valor en la sesión
-    # Aplicar búsqueda
+
     if search_term:
         filtered_df = filtered_df[filtered_df[selected_column].astype(str).str.contains(search_term, case=False, na=False)]
 
-    # Mostrar DataFrame filtrado
     AgGrid(filtered_df, height=600, width='100%', fit_columns_on_grid_load=False, enable_enterprise_modules=False)
 
     csv = filtered_df.to_csv(index=False)
@@ -685,11 +636,9 @@ else:
         mime="text/csv",
     )
 
-    # Mostrar imágenes filtradas
     st.divider()
     st.write(f"Número de imágenes filtradas: {len(filtered_df)}")
 
-    # Mostrar filtros aplicados
     applied_filters = []
     if group_filter != "Todos":
         applied_filters.append(f"Grupo: {group_filter}")
