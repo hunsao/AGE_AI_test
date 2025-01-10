@@ -407,7 +407,7 @@ if 'categories' not in st.session_state:
         #"personality_short": ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"],
         "personality_short": [item.lower() for item in ["Openness", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"]],
         "position_short": [],
-        "person_count": ["1", "2", "3", "4"],
+        "person_count": ["1", "2", "3", "+3"],
         "location": ["indoors", "outdoors", "not identified"]
     }
     
