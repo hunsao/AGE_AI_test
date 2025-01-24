@@ -474,39 +474,39 @@ if not st.session_state.data_loaded:
                     if st.session_state.df_results is not None:
                         st.write("Columnas del DataFrame:", st.session_state.df_results.columns.tolist()) # Imprimir columnas
                         
-                        # required_columns = ['ID', 'filename', 'prompt']
-                        # missing_columns = [col for col in required_columns if col not in st.session_state.df_results.columns]
-                        # if missing_columns:
-                        #     st.error(f"Las siguientes columnas no se encontraron en el DataFrame: {', '.join(missing_columns)}")
-                        #     st.stop()
-                        
-                        # st.session_state.df_results = st.session_state.df_results.rename(columns={'filename': 'filename_jpg'})
-                        # st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
-                        
-                        # new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
-                        #                   "objects", "objects_assist_devices", "objects_digi_devices"] 
-
-                        required_columns = ['ID', 'prompt']
-                        
-                        # Verificar que al menos una de las columnas 'filename' o 'filename_jpg' esté presente
-                        if 'filename' not in st.session_state.df_results.columns and 'filename_jpg' not in st.session_state.df_results.columns:
-                            st.error("El DataFrame debe tener una columna llamada 'filename' o 'filename_jpg'.")
-                            st.stop()
-    
-                        # Verificar las columnas obligatorias
+                        required_columns = ['ID', 'filename', 'prompt']
                         missing_columns = [col for col in required_columns if col not in st.session_state.df_results.columns]
                         if missing_columns:
                             st.error(f"Las siguientes columnas no se encontraron en el DataFrame: {', '.join(missing_columns)}")
                             st.stop()
                         
-                        # Renombrar 'filename' a 'filename_jpg' si 'filename_jpg' no existe
-                        if 'filename_jpg' not in st.session_state.df_results.columns and 'filename' in st.session_state.df_results.columns:
-                            st.session_state.df_results = st.session_state.df_results.rename(columns={'filename': 'filename_jpg'})
-                        
+                        st.session_state.df_results = st.session_state.df_results.rename(columns={'filename': 'filename_jpg'})
                         st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
                         
                         new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
                                           "objects", "objects_assist_devices", "objects_digi_devices"] 
+
+                        # required_columns = ['ID', 'prompt']
+                        
+                        # # Verificar que al menos una de las columnas 'filename' o 'filename_jpg' esté presente
+                        # if 'filename' not in st.session_state.df_results.columns and 'filename_jpg' not in st.session_state.df_results.columns:
+                        #     st.error("El DataFrame debe tener una columna llamada 'filename' o 'filename_jpg'.")
+                        #     st.stop()
+    
+                        # # Verificar las columnas obligatorias
+                        # missing_columns = [col for col in required_columns if col not in st.session_state.df_results.columns]
+                        # if missing_columns:
+                        #     st.error(f"Las siguientes columnas no se encontraron en el DataFrame: {', '.join(missing_columns)}")
+                        #     st.stop()
+                        
+                        # # Renombrar 'filename' a 'filename_jpg' si 'filename_jpg' no existe
+                        # if 'filename_jpg' not in st.session_state.df_results.columns and 'filename' in st.session_state.df_results.columns:
+                        #     st.session_state.df_results = st.session_state.df_results.rename(columns={'filename': 'filename_jpg'})
+                        
+                        # st.session_state.df_results = st.session_state.df_results.dropna(subset=['ID', 'filename_jpg', 'prompt'])
+                        
+                        # new_categories = ["shot", "gender", "race", "emotions_short", "personality_short", "position_short", "person_count", "location",
+                        #                   "objects", "objects_assist_devices", "objects_digi_devices"] 
                         
                         #Convertir a minuscula personality_short
                         if 'personality_short' in st.session_state.df_results.columns:
